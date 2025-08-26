@@ -1,0 +1,659 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+% Comment package removed - using % comments instead
+
+% Define Greek letters and special symbols
+\newcommand{\thetavec}{\boldsymbol{\theta}}
+\newcommand{\alphavar}{\alpha}
+\newcommand{\betavar}{\beta}
+\newcommand{\deltavar}{\delta}
+\newcommand{\epsilonvar}{\varepsilon}
+
+\geometry{margin=2.5cm}
+
+\title{Tarea 1\\
+\large Aprendizaje supervisado, funciones de pérdida y dimensión VC\\
+Reconocimiento de Patrones y AA 26-01}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent\textbf{Instrucciones:} Resuelve los siguientes ejercicios de manera individual. La entrega es en un documento PDF. Puedes escribir tus respuestas en el documento mediante algún software o completamente a mano. Si lo haces a mano, cada paso debe ser legible, y las fotos que tomes se deben incorporar como parte del documento PDF.
+
+\section*{1. [2.5 puntos] Dimensión VC}
+
+Para una clase de hipótesis de triángulos $\mathcal{H}_{\text{tri}}$:
+
+\begin{enumerate}
+    \item[a)] Escribe una función indicadora para evaluar si un punto 2D pertenece o no a una hipótesis de un triángulo particular $h_{\boldsymbol{\theta}} \in \mathcal{H}_{\text{tri}}$.
+    
+    \textbf{Solución:}
+    
+    La función indicadora para un triángulo parametrizado por $\boldsymbol{\theta} = (x_1, y_1, x_2, y_2, x_3, y_3)$ se puede definir usando el método de coordenadas baricéntricas:
+    
+    $$h_{\boldsymbol{\theta}}(x,y) = \begin{cases}
+    1 & \text{si } \lambda_1 \geq 0, \lambda_2 \geq 0, \lambda_3 \geq 0 \\
+    0 & \text{en caso contrario}
+    \end{cases}$$
+    
+    donde las coordenadas baricéntricas $\lambda_1, \lambda_2, \lambda_3$ se calculan como:
+    
+    $$\lambda_1 = \frac{(y_2 - y_3)(x - x_3) + (x_3 - x_2)(y - y_3)}{(y_2 - y_3)(x_1 - x_3) + (x_3 - x_2)(y_1 - y_3)}$$
+    
+    $$\lambda_2 = \frac{(y_3 - y_1)(x - x_3) + (x_1 - x_3)(y - y_3)}{(y_2 - y_3)(x_1 - x_3) + (x_3 - x_2)(y_1 - y_3)}$$
+    
+    $$\lambda_3 = 1 - \lambda_1 - \lambda_2$$
+    
+    % HINT: La función indicadora debe verificar si un punto (x,y) está dentro del triángulo.
+    % Puedes usar el método de coordenadas baricéntricas o el método del área.
+    % 
+    % SOLUCIÓN SUGERIDA:
+    % - Parametriza el triángulo con 6 parámetros: θ = (x1, y1, x2, y2, x3, y3)
+    % - Función indicadora usando áreas:
+    %   h_θ(x,y) = 1 si el punto está dentro, 0 si está fuera
+    % - Método del área: Un punto está dentro si:
+    %   Area(ABC) = Area(PBC) + Area(APC) + Area(ABP)
+    % - Alternativamente, usa coordenadas baricéntricas:
+    %   El punto P está dentro si todas las coordenadas baricéntricas son >= 0
+    
+    \item[b)] Debes escribir la función parametrizada por los parámetros $\boldsymbol{\theta}$ que tú consideres.
+    
+    \textbf{Solución:}
+    
+    La función parametrizada con $\boldsymbol{\theta} = (x_1, y_1, x_2, y_2, x_3, y_3)$ que representa los tres vértices del triángulo es:
+    
+    \begin{verbatim}
+def indicator_triangle(x, y, theta):
+    x1, y1, x2, y2, x3, y3 = theta
+    
+    # Calcular el denominador común
+    denominator = (y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3)
+    
+    # Si el denominador es cero, el triángulo es degenerado
+    if abs(denominator) < 1e-10:
+        return 0
+    
+    # Calcular coordenadas baricéntricas
+    lambda1 = ((y2 - y3) * (x - x3) + (x3 - x2) * (y - y3)) / denominator
+    lambda2 = ((y3 - y1) * (x - x3) + (x1 - x3) * (y - y3)) / denominator
+    lambda3 = 1 - lambda1 - lambda2
+    
+    # Verificar si el punto está dentro del triángulo
+    return 1 if (lambda1 >= 0 and lambda2 >= 0 and lambda3 >= 0) else 0
+    \end{verbatim}
+    
+    Los parámetros $\boldsymbol{\theta}$ son los 6 valores que definen completamente el triángulo: las coordenadas $(x_i, y_i)$ de sus tres vértices.
+    
+    % HINT: Los parámetros más naturales son los 3 vértices del triángulo.
+    % theta = {(x1,y1), (x2,y2), (x3,y3)} - 6 parámetros en total
+    % 
+    % EJEMPLO DE FUNCIÓN:
+    % def indicator_triangle(x, y, theta):
+    %     x1, y1, x2, y2, x3, y3 = theta
+    %     # Calcular usando el método de tu elección
+    %     # Retornar 1 si está dentro, 0 si está fuera
+    
+    \item[c)] Luego usarás dicha función en la práctica asociada a este ejercicio para demostrar exhaustivamente (mediante un programa en Python) que la dimensión VC de la clase $\mathcal{H}_{\text{tri}}$ de triángulos es 7.
+    
+    \textbf{Solución:}
+    
+    Para demostrar que la dimensión VC de los triángulos es 7, se debe:
+    
+    \textbf{1. Demostrar que existen 7 puntos que pueden ser ``shattered'':}
+    
+    Una configuración que funciona es usar 6 puntos en los vértices de un hexágono regular y un punto en el centro:
+    \begin{itemize}
+        \item Puntos del hexágono: $(\cos(k\pi/3), \sin(k\pi/3))$ para $k = 0, 1, 2, 3, 4, 5$
+        \item Punto central: $(0, 0)$
+    \end{itemize}
+    
+    \textbf{2. Demostrar que NO existen 8 puntos que puedan ser shattered:}
+    
+    Para cualquier conjunto de 8 puntos en posición general, siempre existe al menos un etiquetado de las $2^8 = 256$ posibles formas que no puede ser realizado por ningún triángulo. Esto se debe a que:
+    
+    \begin{itemize}
+        \item Un triángulo divide el plano en exactamente 2 regiones (interior y exterior)
+        \item Con 8 puntos, existen etiquetados que requieren regiones no conexas para la clase positiva
+        \item Por ejemplo, si 4 puntos forman un cuadrilátero convexo y los otros 4 están dentro, no se puede separar solo los puntos internos sin incluir algunos externos
+    \end{itemize}
+    
+    \textbf{Pseudocódigo para la implementación:}
+    \begin{verbatim}
+    # Verificar que 7 puntos pueden ser shattered
+    puntos_7 = generar_configuracion_hexagono_centro()
+    for etiquetado in all_labelings(2^7):
+        assert existe_triangulo_separador(puntos_7, etiquetado)
+    
+    # Verificar que 8 puntos NO pueden ser shattered
+    puntos_8 = generar_8_puntos_posicion_general()
+    contador_no_separables = 0
+    for etiquetado in all_labelings(2^8):
+        if not existe_triangulo_separador(puntos_8, etiquetado):
+            contador_no_separables += 1
+    assert contador_no_separables > 0
+    \end{verbatim}
+    
+    Por tanto, la dimensión VC de la clase de hipótesis de triángulos es exactamente 7.
+    
+    % HINT: Para demostrar VC-dim = 7:
+    % 1. Encuentra 7 puntos que pueden ser shattered (separados de todas las 2^7 formas posibles)
+    % 2. Demuestra que NO existen 8 puntos que puedan ser shattered
+    % 
+    % ESTRATEGIA PYTHON:
+    % - Genera conjuntos de 7 puntos y verifica que pueden ser shattered
+    % - Para cada etiquetado posible (2^7 = 128), encuentra un triángulo que lo separe
+    % - Prueba con conjuntos de 8 puntos y muestra que al menos un etiquetado no es separable
+    % - Sugerencia: Usa puntos en configuración especial (e.g., hexágono regular + centro)
+\end{enumerate}
+
+\section*{2. [2.5 puntos] Clases de hipótesis}
+
+Para una clase de hipótesis de elipses $\mathcal{H}_{\text{eli}}$ donde un elipse con centro en la coordenada $(h, k)$ se describe con la siguiente ecuación:
+
+\begin{equation}
+\frac{(x - h)^2}{a^2} + \frac{(y - k)^2}{b^2} = 1
+\end{equation}
+
+donde $a > 0$ y $b > 0$ son los parámetros para los semiejes del elipse.
+
+\begin{enumerate}
+    \item[a)] Usa esta ecuación para escribir una función indicadora para evaluar si un punto en 2D pertenece o no a una hipótesis de un elipse particular $h_{\boldsymbol{\theta}} \in \mathcal{H}_{\text{eli}}$, donde $\boldsymbol{\theta} = \{h, k, a, b\}$.
+    
+    \textbf{Solución:}
+    
+    La función indicadora para un elipse parametrizado por $\boldsymbol{\theta} = \{h, k, a, b\}$ se define como:
+    
+    $$h_{\boldsymbol{\theta}}(x,y) = \begin{cases}
+    1 & \text{si } \frac{(x - h)^2}{a^2} + \frac{(y - k)^2}{b^2} \leq 1 \\
+    0 & \text{en caso contrario}
+    \end{cases}$$
+    
+    donde:
+    \begin{itemize}
+        \item $(h, k)$ es el centro del elipse
+        \item $a$ es el semieje mayor (o menor) en la dirección $x$
+        \item $b$ es el semieje mayor (o menor) en la dirección $y$
+        \item $a, b > 0$
+    \end{itemize}
+    
+    Un punto $(x,y)$ pertenece al interior del elipse (incluyendo la frontera) cuando la expresión normalizada es menor o igual a 1.
+    
+    % BEGIN COMMENT
+    HINT: Un punto (x,y) está dentro del elipse si:
+    ((x - h)^2 / a^2) + ((y - k)^2 / b^2) ≤ 1
+    
+    FUNCIÓN INDICADORA:
+    h_θ(x,y) = 1 si ((x-h)^2/a^2 + (y-k)^2/b^2) ≤ 1
+             = 0 en caso contrario
+    % END COMMENT
+    
+    \item[b)] Escribe a manera de pseudocódigo un algoritmo para encontrar los parámetros $\boldsymbol{\theta}' = \{h', k', a', b'\}$ del elipse más pequeño que sólo permite un error menor o igual al 10\% de clasificaciones incorrectas (para una de dos clases) del total de puntos $\mathcal{X} = \{(x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n)\}$.
+    
+    \textbf{Solución:}
+    
+    \begin{verbatim}
+    ALGORITMO: Encontrar_Elipse_Minimo_Con_Tolerancia
+    
+    ENTRADA: 
+    - X: conjunto de puntos {(x_i, y_i)}
+    - Y: etiquetas {+1, -1}
+    - tolerancia: 0.1 (10% error máximo)
+    
+    1. Separar puntos por clase:
+       X_pos = {puntos con etiqueta +1}
+       X_neg = {puntos con etiqueta -1}
+       n = |X|
+       max_errores = floor(tolerancia * n)
+    
+    2. Inicializar elipse mínimo para puntos positivos:
+       h' = media(x_i) para i en X_pos
+       k' = media(y_i) para i en X_pos  
+       a' = 2 * desviacion_estandar(x_i) para i en X_pos
+       b' = 2 * desviacion_estandar(y_i) para i en X_pos
+    
+    3. Ajustar tamaño del elipse:
+       factor_escala = 0.1
+       MIENTRAS contar_errores(X, Y, {h', k', a', b'}) > max_errores:
+           a' = a' * (1 + factor_escala)
+           b' = b' * (1 + factor_escala)
+    
+    4. RETORNAR θ' = {h', k', a', b'}
+    
+    FUNCIÓN contar_errores(X, Y, theta):
+        errores = 0
+        PARA cada punto (x_i, y_i) con etiqueta y_i:
+            prediccion = h_theta(x_i, y_i)
+            etiqueta_esperada = 1 si y_i == +1, sino 0
+            SI prediccion != etiqueta_esperada:
+                errores += 1
+        RETORNAR errores
+    \end{verbatim}
+    
+    % BEGIN COMMENT
+    HINT: Algoritmo de búsqueda del elipse mínimo con tolerancia al error:
+    
+    PSEUDOCÓDIGO:
+    1. Separar puntos por clase (positivos y negativos)
+    2. Calcular el número máximo de errores permitidos: max_errors = 0.1 * n
+    3. Inicializar con el elipse mínimo que contiene todos los puntos positivos:
+       - Centro: centroide de puntos positivos
+       - Semiejes: basados en desviación estándar o envolvente mínima
+    4. Mientras errores > max_errors:
+       - Expandir gradualmente el elipse (aumentar a y b proporcionalmente)
+       - Contar clasificaciones incorrectas
+    5. Optimización opcional: usar búsqueda binaria en el tamaño
+    % END COMMENT
+    
+    \item[c)] Ahora encuentra también a manera de pseudocódigo los parámetros del elipse más grande que no introduce nuevos errores. Puedes partir de los parámetros $\boldsymbol{\theta}'$ del inciso anterior.
+    
+    \textbf{Solución:}
+    
+    \begin{verbatim}
+    ALGORITMO: Encontrar_Elipse_Maximo_Sin_Nuevos_Errores
+    
+    ENTRADA: 
+    - X, Y: puntos y etiquetas
+    - θ' = {h', k', a', b'}: parámetros del elipse mínimo del inciso b)
+    
+    1. Calcular errores actuales:
+       errores_iniciales = contar_errores(X, Y, θ')
+    
+    2. Calcular distancia normalizada de puntos negativos al elipse:
+       distancias_neg = []
+       PARA cada punto (x_i, y_i) con etiqueta -1:
+           dist_norm = sqrt((x_i - h')²/a'² + (y_i - k')²/b'²)
+           SI dist_norm < 1:  # Punto negativo dentro del elipse
+               distancias_neg.append(1 - dist_norm)
+           SINO:
+               distancias_neg.append(dist_norm - 1)
+    
+    3. Encontrar el factor de expansión máximo:
+       factor_max = 1.0
+       epsilon = 1e-6
+       
+       PARA cada punto negativo (x_i, y_i) FUERA del elipse:
+           # Calcular factor máximo sin incluir este punto
+           dist_norm = sqrt((x_i - h')²/a'² + (y_i - k')²/b'²)
+           factor_candidato = 1 / dist_norm - epsilon
+           factor_max = max(factor_max, factor_candidato)
+    
+    4. Expandir el elipse:
+       a'' = a' * factor_max
+       b'' = b' * factor_max
+       θ'' = {h', k', a'', b''}
+    
+    5. Verificar que no se introduzcan nuevos errores:
+       SI contar_errores(X, Y, θ'') > errores_iniciales:
+           # Reducir factor de expansión iterativamente
+           factor_max = factor_max * 0.99
+           REPETIR paso 4 y 5
+    
+    6. RETORNAR θ'' = {h', k', a'', b''}
+    \end{verbatim}
+    
+    % BEGIN COMMENT
+    HINT: Expandir el elipse hasta justo antes de incluir un punto negativo:
+    
+    PSEUDOCÓDIGO:
+    1. Partir de θ' = {h', k', a', b'}
+    2. Calcular distancias de todos los puntos negativos al elipse
+    3. Encontrar el punto negativo más cercano
+    4. Expandir el elipse hasta factor_expansión = distancia_mínima - ε
+    5. Nuevos parámetros: a'' = a' * factor, b'' = b' * factor
+    6. Verificar que no se introduzcan nuevos errores
+    % END COMMENT
+    
+    \item[d)] Finalmente propón como hipótesis para la función indicadora un elipse que esté entre ambos (de los incisos b y c), por ejemplo a la mitad del camino paramétricamente hablando.
+    
+    \textbf{Solución:}
+    
+    La hipótesis final se obtiene mediante interpolación lineal entre los dos elipses:
+    
+    $$\boldsymbol{\theta}_{\text{final}} = \alpha \boldsymbol{\theta}' + (1-\alpha) \boldsymbol{\theta}''$$
+    
+    donde $\alpha = 0.5$ para obtener el punto medio.
+    
+    Específicamente:
+    \begin{align}
+    h_{\text{final}} &= h' \quad \text{(el centro no cambia)} \\
+    k_{\text{final}} &= k' \quad \text{(el centro no cambia)} \\
+    a_{\text{final}} &= \frac{a' + a''}{2} \\
+    b_{\text{final}} &= \frac{b' + b''}{2}
+    \end{align}
+    
+    Por tanto, la función indicadora final es:
+    
+    $$h_{\text{final}}(x,y) = \begin{cases}
+    1 & \text{si } \frac{(x - h')^2}{a_{\text{final}}^2} + \frac{(y - k')^2}{b_{\text{final}}^2} \leq 1 \\
+    0 & \text{en caso contrario}
+    \end{cases}$$
+    
+    Esta elección balanceada permite un compromiso entre el elipse más pequeño (que minimiza el error de entrenamiento) y el elipse más grande (que maximiza el margen), lo que puede resultar en mejor generalización.
+    
+    % BEGIN COMMENT
+    HINT: Interpolación lineal entre los dos elipses:
+    θ_final = {h', k', (a' + a'')/2, (b' + b'')/2}
+    
+    O más generalmente:
+    θ_final = α * θ' + (1-α) * θ'' donde α = 0.5
+    % END COMMENT
+    
+    \item[e)] Implementarás esto en la práctica asociada a este ejercicio.
+\end{enumerate}
+
+\section*{3. [2.5 puntos] Función de pérdida esperada}
+
+Dados los valores de una función de pérdida $L_{kj}$, el riesgo esperado
+
+\begin{equation}
+E[L] = \sum_{k} \sum_{j} \int_{R_j} L_{kj} p(x, \mathcal{C}_k) dx
+\end{equation}
+
+se minimiza si para cada $x$ escogemos la clase para minimizar la siguiente expresión (ya que $p(x)$ no contiene al parámetro de clase):
+
+\begin{equation}
+\arg\min_{k} \left( \sum_{k} L_{kj} p(C_k|x) p(x) \right) = \arg\min_{k} \left( \sum_{k} L_{kj} p(C_k|x) \right)
+\end{equation}
+
+Verifica que si $L_{kj} = 1 - I_{kj}$, donde $I_{kj}$ son los elementos de la matriz identidad, entonces la minimización anterior se reduce a escoger la clase $i$ con la probabilidad más grande $p(\mathcal{C}_i|x)$.
+
+\textbf{Solución:}
+
+Esta es la función de pérdida 0-1 estándar en problemas de clasificación. Procederemos paso a paso:
+
+\textbf{1. Definición de la función de pérdida:}
+
+Con $L_{kj} = 1 - I_{kj}$, donde $I_{kj}$ son los elementos de la matriz identidad, tenemos:
+$$L_{kj} = \begin{cases}
+0 & \text{si } k = j \text{ (clasificación correcta)} \\
+1 & \text{si } k \neq j \text{ (clasificación incorrecta)}
+\end{cases}$$
+
+\textbf{2. Cálculo de la pérdida esperada para asignar a la clase $j$:}
+
+La expresión a minimizar para cada $x$ es:
+$$\sum_{k} L_{kj} p(\mathcal{C}_k|x)$$
+
+Sustituyendo $L_{kj} = 1 - I_{kj}$:
+\begin{align}
+\sum_{k} L_{kj} p(\mathcal{C}_k|x) &= \sum_{k} (1 - I_{kj}) p(\mathcal{C}_k|x) \\
+&= \sum_{k} p(\mathcal{C}_k|x) - \sum_{k} I_{kj} p(\mathcal{C}_k|x) \\
+&= 1 - p(\mathcal{C}_j|x)
+\end{align}
+
+donde usamos que $\sum_{k} p(\mathcal{C}_k|x) = 1$ y $\sum_{k} I_{kj} p(\mathcal{C}_k|x) = p(\mathcal{C}_j|x)$.
+
+\textbf{3. Minimización:}
+
+Para minimizar el riesgo esperado, debemos encontrar:
+$$\arg\min_{j} \left[ 1 - p(\mathcal{C}_j|x) \right]$$
+
+Como el término constante $1$ no afecta la minimización:
+$$\arg\min_{j} \left[ 1 - p(\mathcal{C}_j|x) \right] = \arg\min_{j} \left[ - p(\mathcal{C}_j|x) \right] = \arg\max_{j} p(\mathcal{C}_j|x)$$
+
+\textbf{Conclusión:}
+
+Con la función de pérdida 0-1, la regla de decisión óptima es elegir la clase $i$ con la probabilidad a posteriori más alta:
+$$i^* = \arg\max_{j} p(\mathcal{C}_j|x)$$
+
+Esta es la regla de decisión de Bayes para clasificación, que minimiza la probabilidad de error de clasificación.
+
+% BEGIN COMMENT
+HINT: Esta es la pérdida 0-1 estándar en clasificación.
+
+DEMOSTRACIÓN:
+1. Con L_kj = 1 - I_kj:
+   - L_kj = 0 si k = j (clasificación correcta)
+   - L_kj = 1 si k ≠ j (clasificación incorrecta)
+
+2. Para la clase j, la pérdida esperada es:
+   Σ_k L_kj p(C_k|x) = Σ_{k≠j} p(C_k|x) = 1 - p(C_j|x)
+
+3. Minimizar 1 - p(C_j|x) equivale a maximizar p(C_j|x)
+
+4. Por lo tanto: argmin_j [1 - p(C_j|x)] = argmax_j p(C_j|x)
+
+Conclusión: Con pérdida 0-1, la regla óptima es elegir la clase más probable.
+% END COMMENT
+
+\section*{4. [2.5 puntos] Función de pérdida relajada}
+
+En los ejercicios 1 y 2 obtuviste funciones indicadoras para evaluar la pertenencia o no de puntos a hipótesis concretas.
+
+\begin{enumerate}
+    \item[a)] Debes extender la función indicadora para crear una nueva función que no evalúe de manera estrictamente ``dura'' la pertenencia a la hipótesis sino que permita considerar puntos cercanos a la frontera de la hipótesis de manera penalizada.
+    
+    \textbf{Solución:}
+    
+    Para extender la función indicadora binaria a una función suave (soft), podemos utilizar varias aproximaciones. Elegiremos una función lineal por partes basada en la distancia a la frontera:
+    
+    \textbf{Función de pérdida suave para elipse:}
+    
+    $$L_{\text{soft}}(x, y, \boldsymbol{\theta}, \delta) = \begin{cases}
+    0 & \text{si } d(x,y) \leq 1 \text{ (dentro del elipse)} \\
+    \frac{d(x,y) - 1}{\delta} & \text{si } 1 < d(x,y) \leq 1 + \delta \text{ (zona de transición)} \\
+    1 & \text{si } d(x,y) > 1 + \delta \text{ (fuera de la zona)}
+    \end{cases}$$
+    
+    donde:
+    $$d(x,y) = \sqrt{\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2}}$$
+    
+    es la distancia normalizada desde el punto $(x,y)$ al centro del elipse, y $\delta > 0$ es el parámetro que controla el ancho de la zona de transición.
+    
+    \textbf{Propiedades de esta función:}
+    \begin{itemize}
+        \item Es continua y diferenciable por partes
+        \item Preserva la función indicadora original cuando $\delta \to 0$
+        \item Permite penalización gradual cerca de la frontera
+        \item $L_{\text{soft}} \in [0,1]$ para todo punto
+    \end{itemize}
+    
+    % BEGIN COMMENT
+    HINT: Crear una función suave (soft) en lugar de binaria.
+    Opciones:
+    - Función sigmoide basada en distancia a la frontera
+    - Función lineal por partes (rampa)
+    - Función gaussiana centrada en la frontera
+    % END COMMENT
+    
+    \item[b)] Tú debes definir una manera de extender la frontera hasta cierta distancia máxima más allá de la frontera original. Por ejemplo: englobando a la hipótesis dentro de un círculo con cierto radio, o definiendo una distancia $\Delta d$ más allá de la frontera de la hipótesis.
+    
+    \textbf{Solución:}
+    
+    Para definir la extensión de la frontera, utilizaremos el concepto de \textbf{zona de transición} con ancho $\delta$:
+    
+    \textbf{Para una elipse con parámetros $\boldsymbol{\theta} = \{h, k, a, b\}$:}
+    
+    \begin{enumerate}
+        \item \textbf{Frontera original:} Los puntos que satisfacen $d(x,y) = 1$
+        
+        \item \textbf{Zona de transición:} Los puntos que satisfacen $1 < d(x,y) \leq 1 + \delta$
+        
+        \item \textbf{Región exterior:} Los puntos que satisfacen $d(x,y) > 1 + \delta$
+    \end{enumerate}
+    
+    donde $d(x,y) = \sqrt{\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2}}$ es la distancia normalizada.
+    
+    \textbf{Interpretación geométrica:}
+    
+    La zona de transición forma una "cáscara elíptica" alrededor del elipse original. Los puntos en esta cáscara están entre:
+    \begin{itemize}
+        \item El elipse original: $\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2} = 1$
+        \item El elipse expandido: $\frac{(x-h)^2}{(a\sqrt{1+\delta})^2} + \frac{(y-k)^2}{(b\sqrt{1+\delta})^2} = 1$
+    \end{itemize}
+    
+    \textbf{Elección del parámetro $\delta$:}
+    \begin{itemize}
+        \item $\delta$ pequeño ($\delta < 0.5$): Transición estrecha, más parecida a la función indicadora original
+        \item $\delta$ mediano ($\delta \approx 1$): Balance entre suavidad y precisión
+        \item $\delta$ grande ($\delta > 2$): Transición muy gradual, mayor tolerancia
+    \end{itemize}
+    
+    % BEGIN COMMENT
+    HINT: Para el triángulo o elipse:
+    - Define una "zona de transición" de ancho Δd
+    - Para triángulo: usa distancia perpendicular a los lados
+    - Para elipse: usa la distancia normalizada desde el centro
+    
+    EJEMPLO para elipse:
+    dist_normalizada = sqrt((x-h)^2/a^2 + (y-k)^2/b^2)
+    - Si dist ≤ 1: dentro (pérdida = 0)
+    - Si 1 < dist ≤ 1+δ: zona de transición (pérdida gradual)
+    - Si dist > 1+δ: fuera (pérdida = 1)
+    % END COMMENT
+    
+    \item[c)] En la región donde extiendas la frontera la función de pérdida debe penalizar en lugar de evaluar a cero.
+    
+    \textbf{Solución:}
+    
+    La función de pérdida relajada en la zona de transición se define como:
+    
+    $$L_{\text{relajada}}(x, y) = \begin{cases}
+    0 & \text{si } d(x,y) \leq 1 \text{ (interior del elipse - sin pérdida)} \\
+    \frac{d(x,y) - 1}{\delta} & \text{si } 1 < d(x,y) \leq 1 + \delta \text{ (zona de transición - penalización gradual)} \\
+    1 & \text{si } d(x,y) > 1 + \delta \text{ (exterior - pérdida máxima)}
+    \end{cases}$$
+    
+    \textbf{Justificación de la penalización:}
+    
+    \begin{itemize}
+        \item \textbf{Región interior ($d \leq 1$):} Pérdida nula porque el punto está correctamente clasificado dentro de la hipótesis.
+        
+        \item \textbf{Zona de transición ($1 < d \leq 1 + \delta$):} Penalización lineal proporcional a qué tan lejos está el punto de la frontera original. Esta penalización:
+        \begin{itemize}
+            \item Comienza en 0 cuando $d = 1$ (en la frontera)
+            \item Crece linealmente hasta 1 cuando $d = 1 + \delta$
+            \item Permite diferenciabilidad para algoritmos de optimización
+        \end{itemize}
+        
+        \item \textbf{Región exterior ($d > 1 + \delta$):} Pérdida máxima (1) porque el punto está claramente fuera de la hipótesis, incluso considerando la tolerancia.
+    \end{itemize}
+    
+    \textbf{Ventajas de esta función de pérdida:}
+    
+    \begin{itemize}
+        \item \textbf{Continuidad:} La función es continua en todos los puntos
+        \item \textbf{Monotonicidad:} A mayor distancia de la frontera, mayor penalización
+        \item \textbf{Acotamiento:} $L_{\text{relajada}} \in [0,1]$ siempre
+        \item \textbf{Flexibilidad:} El parámetro $\delta$ controla la suavidad de la transición
+    \end{itemize}
+    
+    % BEGIN COMMENT
+    HINT: Función de pérdida en la zona de transición:
+    
+    L(x,y) = 0 si está dentro
+    L(x,y) = (dist - 1) / δ si está en zona de transición
+    L(x,y) = 1 si está fuera
+    
+    Esto crea una transición lineal suave.
+    % END COMMENT
+    
+    \item[d)] Puedes elegir para este ejercicio una de las hipótesis de los ejercicios 1 y 2.
+    
+    \textbf{Solución:}
+    
+    \textbf{Elección: Hipótesis de elipse del Ejercicio 2}
+    
+    Elegimos trabajar con la clase de hipótesis de elipses $\mathcal{H}_{\text{eli}}$ por las siguientes razones:
+    
+    \begin{itemize}
+        \item \textbf{Facilidad de cálculo:} La distancia normalizada $d(x,y) = \sqrt{\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2}}$ es directa de calcular
+        
+        \item \textbf{Interpretación geométrica clara:} La zona de transición forma una cáscara elíptica uniforme
+        
+        \item \textbf{Diferenciabilidad:} La función es diferenciable en casi todas partes, útil para optimización
+        
+        \item \textbf{Parametrización simple:} Solo 4 parámetros $\{h, k, a, b\}$ más el parámetro de suavidad $\delta$
+    \end{itemize}
+    
+    \textbf{Función de pérdida relajada completa para elipse:}
+    
+    $$L_{\text{elipse\_relajada}}(x, y, h, k, a, b, \delta) = \begin{cases}
+    0 & \text{si } \sqrt{\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2}} \leq 1 \\
+    \frac{\sqrt{\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2}} - 1}{\delta} & \text{si } 1 < \sqrt{\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2}} \leq 1 + \delta \\
+    1 & \text{si } \sqrt{\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2}} > 1 + \delta
+    \end{cases}$$
+    
+    Esta función extiende suavemente la función indicadora binaria del elipse, permitiendo una clasificación más robusta y diferenciable.
+    
+    % BEGIN COMMENT
+    RECOMENDACIÓN: El elipse es más fácil de implementar porque la distancia
+    desde cualquier punto es fácil de calcular usando la ecuación paramétrica.
+    % END COMMENT
+    
+    \item[e)] Implementarás esto en la práctica asociada a este ejercicio.
+    
+    \textbf{Solución - Esquema de implementación:}
+    
+    La implementación en Python de la función de pérdida relajada para elipse sería:
+    
+    \begin{verbatim}
+import numpy as np
+import matplotlib.pyplot as plt
+
+def soft_loss_ellipse(x, y, h, k, a, b, delta):
+    """
+    Función de pérdida relajada para hipótesis de elipse
+    
+    Parámetros:
+    - (x, y): coordenadas del punto a evaluar
+    - (h, k): centro del elipse
+    - (a, b): semiejes del elipse
+    - delta: ancho de la zona de transición
+    
+    Retorna:
+    - Pérdida en [0,1]
+    """
+    # Calcular distancia normalizada
+    dist = np.sqrt((x - h)**2 / a**2 + (y - k)**2 / b**2)
+    
+    if dist <= 1:
+        return 0  # Interior: sin pérdida
+    elif dist <= 1 + delta:
+        return (dist - 1) / delta  # Transición suave
+    else:
+        return 1  # Exterior: pérdida máxima
+
+def visualize_soft_loss(h, k, a, b, delta):
+    """Visualizar la función de pérdida relajada"""
+    x = np.linspace(h - 2*a, h + 2*a, 100)
+    y = np.linspace(k - 2*b, k + 2*b, 100)
+    X, Y = np.meshgrid(x, y)
+    
+    # Calcular pérdida para cada punto
+    Z = np.zeros_like(X)
+    for i in range(len(x)):
+        for j in range(len(y)):
+            Z[j, i] = soft_loss_ellipse(X[j, i], Y[j, i], h, k, a, b, delta)
+    
+    plt.contourf(X, Y, Z, levels=20, cmap='viridis')
+    plt.colorbar(label='Pérdida')
+    plt.title(f'Función de pérdida relajada (δ={delta})')
+    plt.xlabel('x')
+    plt.ylabel('y')
+    \end{verbatim}
+    
+    % BEGIN COMMENT
+    IMPLEMENTACIÓN PYTHON sugerida:
+    def soft_indicator_ellipse(x, y, h, k, a, b, delta):
+        dist = np.sqrt((x-h)**2/a**2 + (y-k)**2/b**2)
+        if dist <= 1:
+            return 0  # Dentro, sin pérdida
+        elif dist <= 1 + delta:
+            return (dist - 1) / delta  # Transición suave
+        else:
+            return 1  # Fuera, pérdida máxima
+    % END COMMENT
+\end{enumerate}
+
+\end{document}
