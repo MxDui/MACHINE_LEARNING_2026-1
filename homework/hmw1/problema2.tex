@@ -36,40 +36,61 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes del elipse.
     \textbf{Solución:}
     
     \begin{verbatim}
-    ALGORITMO: Encontrar_Elipse_Minimo_Con_Tolerancia
+    ALGORITMO: Elipse_Minimo_Con_Tolerancia (búsqueda por escalamiento)
     
-    ENTRADA: 
+    ENTRADA:
     - X: conjunto de puntos {(x_i, y_i)}
-    - Y: etiquetas {+1, -1}
+    - Y: etiquetas en {+1, -1} (interior = +1)
     - tolerancia: 0.1 (10% error máximo)
     
-    1. Separar puntos por clase:
-       X_pos = {puntos con etiqueta +1}
-       X_neg = {puntos con etiqueta -1}
+    1. Separar por clase y fijar presupuesto de error:
+       X_pos = { (x_i, y_i) | Y_i = +1 }
+       X_neg = { (x_i, y_i) | Y_i = -1 }
        n = |X|
        max_errores = floor(tolerancia * n)
     
-    2. Inicializar elipse mínimo para puntos positivos:
-       h' = media(x_i) para i en X_pos
-       k' = media(y_i) para i en X_pos  
-       a' = 2 * desviacion_estandar(x_i) para i en X_pos
-       b' = 2 * desviacion_estandar(y_i) para i en X_pos
+    2. Estimar centro y forma base con la clase positiva:
+       h' = media(x | (x,y) en X_pos)
+       k' = media(y | (x,y) en X_pos)
+       eps = 1e-9
+       a0 = desviacion_estandar(x | (x,y) en X_pos) + eps
+       b0 = desviacion_estandar(y | (x,y) en X_pos) + eps
     
-    3. Ajustar tamaño del elipse:
-       factor_escala = 0.1
-       MIENTRAS contar_errores(X, Y, {h', k', a', b'}) > max_errores:
-           a' = a' * (1 + factor_escala)
-           b' = b' * (1 + factor_escala)
+    3. Precomputar distancias normalizadas respecto a (h', k', a0, b0):
+       Para cada punto (x_i, y_i):
+           d_i = sqrt( (x_i - h')^2 / a0^2 + (y_i - k')^2 / b0^2 )
     
-    4. RETORNAR theta' = {h', k', a', b'}
+    4. Construir lista de escalas candidatas:
+       S = valores_únicos_ordenados({ d_i : i = 1..n })
+       # Clasificación con escala s: pred_i(s) = +1 si d_i <= s, \
+       # en otro caso -1
     
-    FUNCIÓN contar_errores(X, Y, theta):
+    5. Encontrar el menor s que cumple el presupuesto:
+       mejor_s = None
+       mejor_err = +infinito
+       PARA cada s en S (en orden ascendente):
+           errores = contar_errores_con_s(d, Y, s)
+           SI errores < mejor_err:
+               mejor_err = errores
+           SI errores <= max_errores y (mejor_s es None):
+               mejor_s = s   # es el más pequeño por el orden
+               # opcional: si mejor_err == 0, romper
+       SI mejor_s es None:
+           # No hay s que cumpla; tomar el s con menor #errores (y el más \
+           # pequeño en caso de empate)
+           mejor_s = argmin_por((errores(s), s), s en S)
+    
+    6. Definir el elipse mínimo:
+       a' = a0 * mejor_s
+       b' = b0 * mejor_s
+       theta' = {h', k', a', b'}
+       RETORNAR theta'
+    
+    FUNCIÓN contar_errores_con_s(d, Y, s):
         errores = 0
-        PARA cada punto (x_i, y_i) con etiqueta y_i:
-            prediccion = h_theta(x_i, y_i)
-            etiqueta_esperada = 1 si y_i == +1, sino 0
-            SI prediccion != etiqueta_esperada:
-                errores += 1
+        PARA i = 1..n:
+            pred = +1 si d_i <= s, en otro caso -1
+            SI pred != Y_i: errores += 1
         RETORNAR errores
     \end{verbatim}
     
@@ -79,46 +100,47 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes del elipse.
     \textbf{Solución:}
     
     \begin{verbatim}
-    ALGORITMO: Encontrar_Elipse_Maximo_Sin_Nuevos_Errores
+    ALGORITMO: Elipse_Maximo_Sin_Nuevos_Errores (expansión segura)
     
-    ENTRADA: 
+    ENTRADA:
     - X, Y: puntos y etiquetas
-    - theta' = {h', k', a', b'}: parametros del elipse minimo del inciso b)
+    - theta' = {h', k', a', b'}: elipse mínimo del inciso b)
     
-    1. Calcular errores actuales:
-       errores_iniciales = contar_errores(X, Y, theta')
+    1. errores_iniciales = contar_errores(X, Y, theta')
     
-    2. Calcular distancia normalizada de puntos negativos al elipse:
-       distancias_neg = []
-       PARA cada punto (x_i, y_i) con etiqueta -1:
-           dist_norm = sqrt((x_i - h')²/a'² + (y_i - k')²/b'²)
-           SI dist_norm < 1:  # Punto negativo dentro del elipse
-               distancias_neg.append(1 - dist_norm)
-           SINO:
-               distancias_neg.append(dist_norm - 1)
+    2. Para cada punto negativo (Y_i = -1), calcular
+       d_i = sqrt( (x_i - h')^2 / a'^2 + (y_i - k')^2 / b'^2 )
     
-    3. Encontrar el factor de expansión máximo:
-       factor_max = 1.0
-       epsilon = 1e-6
+    3. Factor de expansión máximo que no introduce nuevos errores:
+       # Al escalar a', b' por s > 1, las nuevas distancias son d_i / s.
+       candidatos = { d_i : Y_i = -1 y d_i > 1 }
+       SI candidatos no vacío:
+           s_max = min(candidatos) - epsilon   # asegura que ningún negativo \
+                                               # fuera cruce a d<=1
+           s_max = max(s_max, 1.0)
+       EN OTRO CASO:
+           s_max = 1.0   # cualquier expansión introduciría nuevos FP si ya \
+                       # hay negativos en el borde
        
-       PARA cada punto negativo (x_i, y_i) FUERA del elipse:
-           # Calcular factor máximo sin incluir este punto
-           dist_norm = sqrt((x_i - h')²/a'² + (y_i - k')²/b'²)
-           factor_candidato = 1 / dist_norm - epsilon
-           factor_max = max(factor_max, factor_candidato)
-    
-    4. Expandir el elipse:
-       a'' = a' * factor_max
-       b'' = b' * factor_max
+    4. Definir el elipse expandido:
+       a'' = a' * s_max
+       b'' = b' * s_max
        theta'' = {h', k', a'', b''}
     
-    5. Verificar que no se introduzcan nuevos errores:
+    5. Verificación:
        SI contar_errores(X, Y, theta'') > errores_iniciales:
-           # Reducir factor de expansión iterativamente
-           factor_max = factor_max * 0.99
-           REPETIR paso 4 y 5
+           s_max = s_max * 0.999  # reducir ligeramente y volver a probar
+           repetir paso 4 y 5 hasta cumplir
     
-    6. RETORNAR theta'' = {h', k', a'', b''}
+    6. RETORNAR theta''
+    
+    FUNCIÓN contar_errores(X, Y, {h, k, a, b}):
+        errores = 0
+        PARA cada (x_i, y_i), Y_i:
+            d = sqrt( (x_i - h)^2 / a^2 + (y_i - k)^2 / b^2 )
+            pred = +1 si d <= 1, en otro caso -1
+            SI pred != Y_i: errores += 1
+        RETORNAR errores
     \end{verbatim}
     
     

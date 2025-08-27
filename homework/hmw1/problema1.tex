@@ -88,12 +88,16 @@ def indicator_triangle(x, y, theta):
         return 0
     
     # Calcular coordenadas baricéntricas
-    lambda1 = ((y2 - y3) * (x - x3) + (x3 - x2) * (y - y3)) / denominator
-    lambda2 = ((y3 - y1) * (x - x3) + (x1 - x3) * (y - y3)) / denominator
+    lambda1 = ((y2 - y3) * (x - x3) + (x3 - x2) * (y - y3)) / \
+              denominator
+    lambda2 = ((y3 - y1) * (x - x3) + (x1 - x3) * (y - y3)) / \
+              denominator
     lambda3 = 1 - lambda1 - lambda2
     
     # Verificar si el punto está dentro del triángulo
-    return 1 if (lambda1 >= 0 and lambda2 >= 0 and lambda3 >= 0) else 0
+    return 1 if (lambda1 >= 0 and \
+                lambda2 >= 0 and \
+                lambda3 >= 0) else 0
     \end{verbatim}
     
     \textbf{Observación:} La clase de hipótesis de triángulos es:
@@ -127,12 +131,11 @@ def indicator_triangle(x, y, theta):
     
     \textbf{2. Demostrar que NO existen 8 puntos que puedan ser shattered:}
     
-    Para cualquier conjunto de 8 puntos en posición general, siempre existe al menos un etiquetado de las $2^8 = 256$ posibles formas que no puede ser realizado por ningún triángulo. Esto se debe a que:
+    Para cualquier conjunto de 8 puntos en posición general, existe al menos un etiquetado no realizable por un triángulo. Idea clave: el interior de un triángulo es un conjunto \emph{convexo} con frontera poligonal de 3 lados.
     
     \begin{itemize}
-        \item Un triángulo divide el plano en exactamente 2 regiones (interior y exterior)
-        \item Con 8 puntos, existen etiquetados que requieren regiones no conexas para la clase positiva
-        \item Por ejemplo, si 4 puntos forman un cuadrilátero convexo y los otros 4 están dentro, no se puede separar solo los puntos internos sin incluir algunos externos
+        \item Si cuatro puntos forman un cuadrilátero convexo con otros cuatro en su interior, el etiquetado que marca como positivos solo a los cuatro interiores exige una región positiva \emph{no convexa} (o con frontera con más de 3 lados) para excluir los vértices exteriores, lo cual no puede implementarse con un triángulo.
+        \item Más generalmente, hay etiquetados que requieren una región positiva con frontera con más de tres “giros” (número de cambios en la curvatura), imposible con una frontera triangular.
     \end{itemize}
     
     \textbf{Pseudocódigo para la implementación:}

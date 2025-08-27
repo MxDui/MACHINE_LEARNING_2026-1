@@ -54,7 +54,7 @@ En los ejercicios 1 y 2 obtuviste funciones indicadoras para evaluar la pertenen
     La zona de transición forma una "cáscara elíptica" alrededor del elipse original. Los puntos en esta cáscara están entre:
     \begin{itemize}
         \item El elipse original: $\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2} = 1$
-        \item El elipse expandido: $\frac{(x-h)^2}{(a\sqrt{1+\delta})^2} + \frac{(y-k)^2}{(b\sqrt{1+\delta})^2} = 1$
+        \item El elipse expandido: $\frac{(x-h)^2}{(a(1+\delta))^2} + \frac{(y-k)^2}{(b(1+\delta))^2} = 1$
     \end{itemize}
     
     \textbf{Elección del parámetro $\delta$:}
@@ -174,13 +174,15 @@ def visualize_soft_loss(h, k, a, b, delta):
     Z = np.zeros_like(X)
     for i in range(len(x)):
         for j in range(len(y)):
-            Z[j, i] = soft_loss_ellipse(X[j, i], Y[j, i], h, k, a, b, delta)
+            Z[j, i] = soft_loss_ellipse(X[j, i], Y[j, i], \
+                                        h, k, a, b, delta)
     
     plt.contourf(X, Y, Z, levels=20, cmap='viridis')
     plt.colorbar(label='Perdida')
     plt.title(f'Funcion de perdida relajada (delta={delta})')
     plt.xlabel('x')
     plt.ylabel('y')
+    plt.show()
     \end{verbatim}
     
 \end{enumerate}

@@ -9,7 +9,7 @@ E[L] = \sum_{k} \sum_{j} \int_{R_j} L_{kj} p(x, \mathcal{C}_k) dx
 se minimiza si para cada $x$ escogemos la clase para minimizar la siguiente expresión (ya que $p(x)$ no contiene al parámetro de clase):
 
 \begin{equation}
-\arg\min_{k} \left( \sum_{k} L_{kj} p(C_k|x) p(x) \right) = \arg\min_{k} \left( \sum_{k} L_{kj} p(C_k|x) \right)
+\arg\min_{j} \left( \sum_{k} L_{kj} p(\mathcal{C}_k|x) p(x) \right) = \arg\min_{j} \left( \sum_{k} L_{kj} p(\mathcal{C}_k|x) \right)
 \end{equation}
 
 Verifica que si $L_{kj} = 1 - I_{kj}$, donde $I_{kj}$ son los elementos de la matriz identidad, entonces la minimización anterior se reduce a escoger la clase $i$ con la probabilidad más grande $p(\mathcal{C}_i|x)$.
