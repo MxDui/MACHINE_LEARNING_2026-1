@@ -7,20 +7,31 @@ Para una clase de hipótesis de triángulos $\mathcal{H}_{\text{tri}}$:
     
     \textbf{Solución:}
     
-    La función indicadora para un triángulo parametrizado por $\boldsymbol{\theta} = (x_1, y_1, x_2, y_2, x_3, y_3)$ se puede definir usando el método de coordenadas baricéntricas:
+    La función indicadora para determinar si un punto $(x,y)$ pertenece a un triángulo con vértices en $(x_1, y_1)$, $(x_2, y_2)$, $(x_3, y_3)$ se puede definir utilizando \textbf{coordenadas baricéntricas}:
     
     $$h_{\boldsymbol{\theta}}(x,y) = \begin{cases}
     1 & \text{si } \lambda_1 \geq 0, \lambda_2 \geq 0, \lambda_3 \geq 0 \\
     0 & \text{en caso contrario}
     \end{cases}$$
     
-    donde las coordenadas baricéntricas $\lambda_1, \lambda_2, \lambda_3$ se calculan como:
+    donde las coordenadas baricéntricas $\lambda_1$, $\lambda_2$, $\lambda_3$ se calculan como:
     
     $$\lambda_1 = \frac{(y_2 - y_3)(x - x_3) + (x_3 - x_2)(y - y_3)}{(y_2 - y_3)(x_1 - x_3) + (x_3 - x_2)(y_1 - y_3)}$$
     
     $$\lambda_2 = \frac{(y_3 - y_1)(x - x_3) + (x_1 - x_3)(y - y_3)}{(y_2 - y_3)(x_1 - x_3) + (x_3 - x_2)(y_1 - y_3)}$$
     
     $$\lambda_3 = 1 - \lambda_1 - \lambda_2$$
+    
+    \textbf{Interpretación geométrica:} Un punto está dentro del triángulo si y solo si todas sus coordenadas baricéntricas son no negativas. Esto equivale a que el punto puede expresarse como una combinación convexa de los tres vértices.
+    
+    \textbf{Método alternativo (usando áreas):}
+    
+    $$h_{\boldsymbol{\theta}}(x,y) = \begin{cases}
+    1 & \text{si } |A_{ABC}| = |A_{PBC}| + |A_{APC}| + |A_{ABP}| \\
+    0 & \text{en caso contrario}
+    \end{cases}$$
+    
+    donde $A_{ABC}$ es el área del triángulo con vértices $A=(x_1,y_1)$, $B=(x_2,y_2)$, $C=(x_3,y_3)$, y $P=(x,y)$ es el punto a evaluar.
     
     % HINT: La función indicadora debe verificar si un punto (x,y) está dentro del triángulo.
     % Puedes usar el método de coordenadas baricéntricas o el método del área.
@@ -38,7 +49,32 @@ Para una clase de hipótesis de triángulos $\mathcal{H}_{\text{tri}}$:
     
     \textbf{Solución:}
     
-    La función parametrizada con $\boldsymbol{\theta} = (x_1, y_1, x_2, y_2, x_3, y_3)$ que representa los tres vértices del triángulo es:
+    La parametrización natural para un triángulo en $\mathbb{R}^2$ requiere \textbf{6 parámetros}:
+    
+    $$\boldsymbol{\theta} = (x_1, y_1, x_2, y_2, x_3, y_3) \in \mathbb{R}^6$$
+    
+    donde $(x_i, y_i)$ representa las coordenadas del $i$-ésimo vértice del triángulo.
+    
+    La función parametrizada es entonces:
+    
+    $$h_{\boldsymbol{\theta}}: \mathbb{R}^2 \rightarrow \{0,1\}$$
+    
+    $$h_{\boldsymbol{\theta}}(x,y) = \mathbb{1}_{\{\text{punto } (x,y) \text{ está dentro del triángulo definido por } \boldsymbol{\theta}\}}$$
+    
+    \textbf{Expresión explícita:}
+    
+    $$h_{\boldsymbol{\theta}}(x,y) = \begin{cases}
+    1 & \text{si } \begin{aligned}
+    &\text{sgn}((x-x_1)(y_2-y_1) - (y-y_1)(x_2-x_1)) = \\
+    &\text{sgn}((x-x_2)(y_3-y_2) - (y-y_2)(x_3-x_2)) = \\
+    &\text{sgn}((x-x_3)(y_1-y_3) - (y-y_3)(x_1-x_3))
+    \end{aligned} \\
+    0 & \text{en caso contrario}
+    \end{cases}$$
+    
+    donde $\text{sgn}$ es la función signo. Esta formulación verifica que el punto esté del mismo lado de las tres aristas del triángulo.
+    
+    \textbf{Implementación en Python:}
     
     \begin{verbatim}
 def indicator_triangle(x, y, theta):
@@ -60,7 +96,11 @@ def indicator_triangle(x, y, theta):
     return 1 if (lambda1 >= 0 and lambda2 >= 0 and lambda3 >= 0) else 0
     \end{verbatim}
     
-    Los parámetros $\boldsymbol{\theta}$ son los 6 valores que definen completamente el triángulo: las coordenadas $(x_i, y_i)$ de sus tres vértices.
+    \textbf{Observación:} La clase de hipótesis de triángulos es:
+    
+    $$\mathcal{H}_{\text{tri}} = \{h_{\boldsymbol{\theta}} : \boldsymbol{\theta} \in \mathbb{R}^6 \text{ define un triángulo no degenerado}\}$$
+    
+    Un triángulo es no degenerado si $|(y_2 - y_3)(x_1 - x_3) + (x_3 - x_2)(y_1 - y_3)| > 0$, es decir, los tres vértices no son colineales.
     
     % HINT: Los parámetros más naturales son los 3 vértices del triángulo.
     % theta = {(x1,y1), (x2,y2), (x3,y3)} - 6 parámetros en total
