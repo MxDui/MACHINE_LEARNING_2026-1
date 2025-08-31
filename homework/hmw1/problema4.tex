@@ -7,61 +7,33 @@ En los ejercicios 1 y 2 obtuviste funciones indicadoras para evaluar la pertenen
     
     \textbf{Solución:}
     
-    Para extender la función indicadora binaria a una función suave (soft), podemos utilizar varias aproximaciones. Elegiremos una función lineal por partes basada en la distancia a la frontera:
+    Función de pérdida suave para la elipse:
     
-    \textbf{Función de pérdida suave para elipse:}
-    
-    $$L_{\text{soft}}(x, y, \boldsymbol{\theta}, \delta) = \begin{cases}
-    0 & \text{si } d(x,y) \leq 1 \text{ (dentro del elipse)} \\
-    \frac{d(x,y) - 1}{\delta} & \text{si } 1 < d(x,y) \leq 1 + \delta \text{ (zona de transición)} \\
-    1 & \text{si } d(x,y) > 1 + \delta \text{ (fuera de la zona)}
+    $$L_{\text{soft}}(x, y) = \begin{cases}
+    0 & \text{si } d(x,y) \leq 1 \\
+    \frac{d(x,y) - 1}{\delta} & \text{si } 1 < d(x,y) \leq 1 + \delta \\
+    1 & \text{si } d(x,y) > 1 + \delta
     \end{cases}$$
     
-    donde:
-    $$d(x,y) = \sqrt{\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2}}$$
-    
-    es la distancia normalizada desde el punto $(x,y)$ al centro del elipse, y $\delta > 0$ es el parámetro que controla el ancho de la zona de transición.
-    
-    \textbf{Propiedades de esta función:}
-    \begin{itemize}
-        \item Es continua y diferenciable por partes
-        \item Preserva la función indicadora original cuando $\delta \to 0$
-        \item Permite penalización gradual cerca de la frontera
-        \item $L_{\text{soft}} \in [0,1]$ para todo punto
-    \end{itemize}
+    donde $d(x,y) = \sqrt{\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2}}$ y $\delta > 0$ controla el ancho de transición.
     
     
     \item[b)] Tú debes definir una manera de extender la frontera hasta cierta distancia máxima más allá de la frontera original. Por ejemplo: englobando a la hipótesis dentro de un círculo con cierto radio, o definiendo una distancia $\Delta d$ más allá de la frontera de la hipótesis.
     
     \textbf{Solución:}
     
-    Para definir la extensión de la frontera, utilizaremos el concepto de \textbf{zona de transición} con ancho $\delta$:
+    Zona de transición con ancho $\delta$:
     
-    \textbf{Para una elipse con parámetros $\boldsymbol{\theta} = \{h, k, a, b\}$:}
-    
-    \begin{enumerate}
-        \item \textbf{Frontera original:} Los puntos que satisfacen $d(x,y) = 1$
-        
-        \item \textbf{Zona de transición:} Los puntos que satisfacen $1 < d(x,y) \leq 1 + \delta$
-        
-        \item \textbf{Región exterior:} Los puntos que satisfacen $d(x,y) > 1 + \delta$
-    \end{enumerate}
-    
-    donde $d(x,y) = \sqrt{\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2}}$ es la distancia normalizada.
-    
-    \textbf{Interpretación geométrica:}
-    
-    La zona de transición forma una "cáscara elíptica" alrededor del elipse original. Los puntos en esta cáscara están entre:
     \begin{itemize}
-        \item El elipse original: $\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2} = 1$
-        \item El elipse expandido: $\frac{(x-h)^2}{(a(1+\delta))^2} + \frac{(y-k)^2}{(b(1+\delta))^2} = 1$
+        \item Frontera original: $d(x,y) = 1$
+        \item Zona de transición: $1 < d(x,y) \leq 1 + \delta$
+        \item Región exterior: $d(x,y) > 1 + \delta$
     \end{itemize}
     
-    \textbf{Elección del parámetro $\delta$:}
+    La zona forma una cáscara elíptica entre:
     \begin{itemize}
-        \item $\delta$ pequeño ($\delta < 0.5$): Transición estrecha, más parecida a la función indicadora original
-        \item $\delta$ mediano ($\delta \approx 1$): Balance entre suavidad y precisión
-        \item $\delta$ grande ($\delta > 2$): Transición muy gradual, mayor tolerancia
+        \item Elipse original: $\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2} = 1$
+        \item Elipse expandida: $\frac{(x-h)^2}{(a(1+\delta))^2} + \frac{(y-k)^2}{(b(1+\delta))^2} = 1$
     \end{itemize}
     
     
@@ -69,36 +41,17 @@ En los ejercicios 1 y 2 obtuviste funciones indicadoras para evaluar la pertenen
     
     \textbf{Solución:}
     
-    La función de pérdida relajada en la zona de transición se define como:
-    
     $$L_{\text{relajada}}(x, y) = \begin{cases}
-    0 & \text{si } d(x,y) \leq 1 \text{ (interior del elipse - sin pérdida)} \\
-    \frac{d(x,y) - 1}{\delta} & \text{si } 1 < d(x,y) \leq 1 + \delta \text{ (zona de transición - penalización gradual)} \\
-    1 & \text{si } d(x,y) > 1 + \delta \text{ (exterior - pérdida máxima)}
+    0 & \text{si } d(x,y) \leq 1 \\
+    \frac{d(x,y) - 1}{\delta} & \text{si } 1 < d(x,y) \leq 1 + \delta \\
+    1 & \text{si } d(x,y) > 1 + \delta
     \end{cases}$$
     
-    \textbf{Justificación de la penalización:}
-    
+    Penalización:
     \begin{itemize}
-        \item \textbf{Región interior ($d \leq 1$):} Pérdida nula porque el punto está correctamente clasificado dentro de la hipótesis.
-        
-        \item \textbf{Zona de transición ($1 < d \leq 1 + \delta$):} Penalización lineal proporcional a qué tan lejos está el punto de la frontera original. Esta penalización:
-        \begin{itemize}
-            \item Comienza en 0 cuando $d = 1$ (en la frontera)
-            \item Crece linealmente hasta 1 cuando $d = 1 + \delta$
-            \item Permite diferenciabilidad para algoritmos de optimización
-        \end{itemize}
-        
-        \item \textbf{Región exterior ($d > 1 + \delta$):} Pérdida máxima (1) porque el punto está claramente fuera de la hipótesis, incluso considerando la tolerancia.
-    \end{itemize}
-    
-    \textbf{Ventajas de esta función de pérdida:}
-    
-    \begin{itemize}
-        \item \textbf{Continuidad:} La función es continua en todos los puntos
-        \item \textbf{Monotonicidad:} A mayor distancia de la frontera, mayor penalización
-        \item \textbf{Acotamiento:} $L_{\text{relajada}} \in [0,1]$ siempre
-        \item \textbf{Flexibilidad:} El parámetro $\delta$ controla la suavidad de la transición
+        \item Interior ($d \leq 1$): Sin pérdida
+        \item Transición ($1 < d \leq 1 + \delta$): Penalización lineal de 0 a 1
+        \item Exterior ($d > 1 + \delta$): Pérdida máxima
     \end{itemize}
     
     
@@ -106,83 +59,33 @@ En los ejercicios 1 y 2 obtuviste funciones indicadoras para evaluar la pertenen
     
     \textbf{Solución:}
     
-    \textbf{Elección: Hipótesis de elipse del Ejercicio 2}
+    Elección: Elipse del Ejercicio 2
     
-    Elegimos trabajar con la clase de hipótesis de elipses $\mathcal{H}_{\text{eli}}$ por las siguientes razones:
-    
-    \begin{itemize}
-        \item \textbf{Facilidad de cálculo:} La distancia normalizada $d(x,y) = \sqrt{\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2}}$ es directa de calcular
-        
-        \item \textbf{Interpretación geométrica clara:} La zona de transición forma una cáscara elíptica uniforme
-        
-        \item \textbf{Diferenciabilidad:} La función es diferenciable en casi todas partes, útil para optimización
-        
-        \item \textbf{Parametrización simple:} Solo 4 parámetros $\{h, k, a, b\}$ más el parámetro de suavidad $\delta$
-    \end{itemize}
-    
-    \textbf{Función de pérdida relajada completa para elipse:}
-    
-    $$L_{\text{elipse\_relajada}}(x, y, h, k, a, b, \delta) = \begin{cases}
-    0 & \text{si } \sqrt{\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2}} \leq 1 \\
-    \frac{\sqrt{\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2}} - 1}{\delta} & \text{si } 1 < \sqrt{\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2}} \leq 1 + \delta \\
-    1 & \text{si } \sqrt{\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2}} > 1 + \delta
+    $$L_{\text{elipse}}(x, y, h, k, a, b, \delta) = \begin{cases}
+    0 & \text{si } d \leq 1 \\
+    \frac{d - 1}{\delta} & \text{si } 1 < d \leq 1 + \delta \\
+    1 & \text{si } d > 1 + \delta
     \end{cases}$$
     
-    Esta función extiende suavemente la función indicadora binaria del elipse, permitiendo una clasificación más robusta y diferenciable.
+    donde $d = \sqrt{\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2}}$
     
     
     \item[e)] Implementarás esto en la práctica asociada a este ejercicio.
     
-    \textbf{Solución - Esquema de implementación:}
+    \textbf{Solución:}
     
-    La implementación en Python de la función de pérdida relajada para elipse sería:
+    Implementación:
     
     \begin{verbatim}
-import numpy as np
-import matplotlib.pyplot as plt
-
 def soft_loss_ellipse(x, y, h, k, a, b, delta):
-    """
-    Funcion de perdida relajada para hipotesis de elipse
-    
-    Parametros:
-    - (x, y): coordenadas del punto a evaluar
-    - (h, k): centro del elipse
-    - (a, b): semiejes del elipse
-    - delta: ancho de la zona de transicion
-    
-    Retorna:
-    - Perdida en [0,1]
-    """
-    # Calcular distancia normalizada
     dist = np.sqrt((x - h)**2 / a**2 + (y - k)**2 / b**2)
     
     if dist <= 1:
-        return 0  # Interior: sin perdida
+        return 0
     elif dist <= 1 + delta:
-        return (dist - 1) / delta  # Transicion suave
+        return (dist - 1) / delta
     else:
-        return 1  # Exterior: perdida maxima
-
-def visualize_soft_loss(h, k, a, b, delta):
-    """Visualizar la funcion de perdida relajada"""
-    x = np.linspace(h - 2*a, h + 2*a, 100)
-    y = np.linspace(k - 2*b, k + 2*b, 100)
-    X, Y = np.meshgrid(x, y)
-    
-    # Calcular perdida para cada punto
-    Z = np.zeros_like(X)
-    for i in range(len(x)):
-        for j in range(len(y)):
-            Z[j, i] = soft_loss_ellipse(X[j, i], Y[j, i], \
-                                        h, k, a, b, delta)
-    
-    plt.contourf(X, Y, Z, levels=20, cmap='viridis')
-    plt.colorbar(label='Perdida')
-    plt.title(f'Funcion de perdida relajada (delta={delta})')
-    plt.xlabel('x')
-    plt.ylabel('y')
-    plt.show()
+        return 1
     \end{verbatim}
     
 \end{enumerate}

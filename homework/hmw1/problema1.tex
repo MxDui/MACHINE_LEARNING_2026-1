@@ -7,14 +7,14 @@ Para una clase de hipótesis de triángulos $\mathcal{H}_{\text{tri}}$:
     
     \textbf{Solución:}
     
-    La función indicadora para determinar si un punto $(x,y)$ pertenece a un triángulo con vértices en $(x_1, y_1)$, $(x_2, y_2)$, $(x_3, y_3)$ se puede definir utilizando \textbf{coordenadas baricéntricas}:
+    Usando coordenadas baricéntricas:
     
     $$h_{\boldsymbol{\theta}}(x,y) = \begin{cases}
     1 & \text{si } \lambda_1 \geq 0, \lambda_2 \geq 0, \lambda_3 \geq 0 \\
     0 & \text{en caso contrario}
     \end{cases}$$
     
-    donde las coordenadas baricéntricas $\lambda_1$, $\lambda_2$, $\lambda_3$ se calculan como:
+    donde:
     
     $$\lambda_1 = \frac{(y_2 - y_3)(x - x_3) + (x_3 - x_2)(y - y_3)}{(y_2 - y_3)(x_1 - x_3) + (x_3 - x_2)(y_1 - y_3)}$$
     
@@ -22,24 +22,13 @@ Para una clase de hipótesis de triángulos $\mathcal{H}_{\text{tri}}$:
     
     $$\lambda_3 = 1 - \lambda_1 - \lambda_2$$
     
-    \textbf{Interpretación geométrica:} Un punto está dentro del triángulo si y solo si todas sus coordenadas baricéntricas son no negativas. Esto equivale a que el punto puede expresarse como una combinación convexa de los tres vértices.
-    
-    \textbf{Método alternativo (usando áreas):}
-    
-    $$h_{\boldsymbol{\theta}}(x,y) = \begin{cases}
-    1 & \text{si } |A_{ABC}| = |A_{PBC}| + |A_{APC}| + |A_{ABP}| \\
-    0 & \text{en caso contrario}
-    \end{cases}$$
-    
-    donde $A_{ABC}$ es el área del triángulo con vértices $A=(x_1,y_1)$, $B=(x_2,y_2)$, $C=(x_3,y_3)$, y $P=(x,y)$ es el punto a evaluar.
-    
     % HINT: La función indicadora debe verificar si un punto (x,y) está dentro del triángulo.
     % Puedes usar el método de coordenadas baricéntricas o el método del área.
     % 
     % SOLUCIÓN SUGERIDA:
-    % - Parametriza el triángulo con 6 parámetros: θ = (x1, y1, x2, y2, x3, y3)
+    % - Parametriza el triángulo con 6 parámetros: theta = (x1, y1, x2, y2, x3, y3)
     % - Función indicadora usando áreas:
-    %   h_θ(x,y) = 1 si el punto está dentro, 0 si está fuera
+    %   h_theta(x,y) = 1 si el punto está dentro, 0 si está fuera
     % - Método del área: Un punto está dentro si:
     %   Area(ABC) = Area(PBC) + Area(APC) + Area(ABP)
     % - Alternativamente, usa coordenadas baricéntricas:
@@ -49,62 +38,31 @@ Para una clase de hipótesis de triángulos $\mathcal{H}_{\text{tri}}$:
     
     \textbf{Solución:}
     
-    La parametrización natural para un triángulo en $\mathbb{R}^2$ requiere \textbf{6 parámetros}:
-    
     $$\boldsymbol{\theta} = (x_1, y_1, x_2, y_2, x_3, y_3) \in \mathbb{R}^6$$
     
-    donde $(x_i, y_i)$ representa las coordenadas del $i$-ésimo vértice del triángulo.
-    
-    La función parametrizada es entonces:
-    
-    $$h_{\boldsymbol{\theta}}: \mathbb{R}^2 \rightarrow \{0,1\}$$
-    
-    $$h_{\boldsymbol{\theta}}(x,y) = \mathbb{1}_{\{\text{punto } (x,y) \text{ está dentro del triángulo definido por } \boldsymbol{\theta}\}}$$
-    
-    \textbf{Expresión explícita:}
+    Función parametrizada:
     
     $$h_{\boldsymbol{\theta}}(x,y) = \begin{cases}
-    1 & \text{si } \begin{aligned}
-    &\text{sgn}((x-x_1)(y_2-y_1) - (y-y_1)(x_2-x_1)) = \\
-    &\text{sgn}((x-x_2)(y_3-y_2) - (y-y_2)(x_3-x_2)) = \\
-    &\text{sgn}((x-x_3)(y_1-y_3) - (y-y_3)(x_1-x_3))
-    \end{aligned} \\
+    1 & \text{si el punto } (x,y) \text{ está dentro del triángulo} \\
     0 & \text{en caso contrario}
     \end{cases}$$
     
-    donde $\text{sgn}$ es la función signo. Esta formulación verifica que el punto esté del mismo lado de las tres aristas del triángulo.
-    
-    \textbf{Implementación en Python:}
+    Implementación:
     
     \begin{verbatim}
 def indicator_triangle(x, y, theta):
     x1, y1, x2, y2, x3, y3 = theta
+    denom = (y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3)
     
-    # Calcular el denominador común
-    denominator = (y2 - y3) * (x1 - x3) + (x3 - x2) * (y1 - y3)
-    
-    # Si el denominador es cero, el triángulo es degenerado
-    if abs(denominator) < 1e-10:
+    if abs(denom) < 1e-10:
         return 0
     
-    # Calcular coordenadas baricéntricas
-    lambda1 = ((y2 - y3) * (x - x3) + (x3 - x2) * (y - y3)) / \
-              denominator
-    lambda2 = ((y3 - y1) * (x - x3) + (x1 - x3) * (y - y3)) / \
-              denominator
+    lambda1 = ((y2 - y3) * (x - x3) + (x3 - x2) * (y - y3)) / denom
+    lambda2 = ((y3 - y1) * (x - x3) + (x1 - x3) * (y - y3)) / denom
     lambda3 = 1 - lambda1 - lambda2
     
-    # Verificar si el punto está dentro del triángulo
-    return 1 if (lambda1 >= 0 and \
-                lambda2 >= 0 and \
-                lambda3 >= 0) else 0
+    return 1 if (lambda1 >= 0 and lambda2 >= 0 and lambda3 >= 0) else 0
     \end{verbatim}
-    
-    \textbf{Observación:} La clase de hipótesis de triángulos es:
-    
-    $$\mathcal{H}_{\text{tri}} = \{h_{\boldsymbol{\theta}} : \boldsymbol{\theta} \in \mathbb{R}^6 \text{ define un triángulo no degenerado}\}$$
-    
-    Un triángulo es no degenerado si $|(y_2 - y_3)(x_1 - x_3) + (x_3 - x_2)(y_1 - y_3)| > 0$, es decir, los tres vértices no son colineales.
     
     % HINT: Los parámetros más naturales son los 3 vértices del triángulo.
     % theta = {(x1,y1), (x2,y2), (x3,y3)} - 6 parámetros en total
@@ -119,42 +77,32 @@ def indicator_triangle(x, y, theta):
     
     \textbf{Solución:}
     
-    Para demostrar que la dimensión VC de los triángulos es 7, se debe:
+    La dimensión VC es 7:
     
-    \textbf{1. Demostrar que existen 7 puntos que pueden ser ``shattered'':}
+    \textbf{1. Existen 7 puntos que pueden ser shattered:}
     
-    Una configuración que funciona es usar 6 puntos en los vértices de un hexágono regular y un punto en el centro:
-    \begin{itemize}
-        \item Puntos del hexágono: $(\cos(k\pi/3), \sin(k\pi/3))$ para $k = 0, 1, 2, 3, 4, 5$
-        \item Punto central: $(0, 0)$
-    \end{itemize}
+    Toma 7 puntos en un círculo: $P_k = (\cos(2\pi k/7), \sin(2\pi k/7))$ para $k=0,1,\dots,6$.
     
-    \textbf{2. Demostrar que NO existen 8 puntos que puedan ser shattered:}
+    Un triángulo es la intersección de 3 semiplanos, por lo que puede crear hasta 3 intervalos de puntos positivos sobre el círculo. Con 7 puntos, cualquier etiquetado tiene a lo más 6 cambios, realizable con 3 intervalos.
     
-    Para cualquier conjunto de 8 puntos en posición general, existe al menos un etiquetado no realizable por un triángulo. Idea clave: el interior de un triángulo es un conjunto \emph{convexo} con frontera poligonal de 3 lados.
+    \textbf{2. NO existen 8 puntos que puedan ser shattered:}
     
-    \begin{itemize}
-        \item Si cuatro puntos forman un cuadrilátero convexo con otros cuatro en su interior, el etiquetado que marca como positivos solo a los cuatro interiores exige una región positiva \emph{no convexa} (o con frontera con más de 3 lados) para excluir los vértices exteriores, lo cual no puede implementarse con un triángulo.
-        \item Más generalmente, hay etiquetados que requieren una región positiva con frontera con más de tres “giros” (número de cambios en la curvatura), imposible con una frontera triangular.
-    \end{itemize}
+    Con 8 puntos en círculo y etiquetado alternante (+, -, +, -, ...), hay 8 transiciones que requieren 4 intervalos. Un triángulo solo puede generar 3 intervalos, por lo que este etiquetado no es realizable.
     
-    \textbf{Pseudocódigo para la implementación:}
+    Implementación:
     \begin{verbatim}
     # Verificar que 7 puntos pueden ser shattered
-    puntos_7 = generar_configuracion_hexagono_centro()
-    for etiquetado in all_labelings(2^7):
+    puntos_7 = generar_7_puntos_en_circulo()
+    for etiquetado in all_labelings(2**7):
         assert existe_triangulo_separador(puntos_7, etiquetado)
     
     # Verificar que 8 puntos NO pueden ser shattered
-    puntos_8 = generar_8_puntos_posicion_general()
-    contador_no_separables = 0
-    for etiquetado in all_labelings(2^8):
-        if not existe_triangulo_separador(puntos_8, etiquetado):
-            contador_no_separables += 1
-    assert contador_no_separables > 0
+    puntos_8 = generar_8_puntos_en_circulo()
+    etiquetado_alt = alternar_signos(8)  # + - + - + - + -
+    assert not existe_triangulo_separador(puntos_8, etiquetado_alt)
     \end{verbatim}
     
-    Por tanto, la dimensión VC de la clase de hipótesis de triángulos es exactamente 7.
+    Por tanto, VC-dim = 7.
     
     % HINT: Para demostrar VC-dim = 7:
     % 1. Encuentra 7 puntos que pueden ser shattered (separados de todas las 2^7 formas posibles)

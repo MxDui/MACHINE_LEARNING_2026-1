@@ -1,53 +1,41 @@
 \section*{2. [2.5 puntos] Clases de hipótesis}
 
-Para una clase de hipótesis de elipses $\mathcal{H}_{\text{eli}}$ donde un elipse con centro en la coordenada $(h, k)$ se describe con la siguiente ecuación:
+Para una clase de hipótesis de elipses $\mathcal{H}_{\text{eli}}$ donde una elipse con centro en la coordenada $(h, k)$ se describe con la siguiente ecuación:
 
 \begin{equation}
 \frac{(x - h)^2}{a^2} + \frac{(y - k)^2}{b^2} = 1
 \end{equation}
 
-donde $a > 0$ y $b > 0$ son los parámetros para los semiejes del elipse.
+donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
 
 \begin{enumerate}
-    \item[a)] Usa esta ecuación para escribir una función indicadora para evaluar si un punto en 2D pertenece o no a una hipótesis de un elipse particular $h_{\boldsymbol{\theta}} \in \mathcal{H}_{\text{eli}}$, donde $\boldsymbol{\theta} = \{h, k, a, b\}$.
+    \item[a)] Usa esta ecuación para escribir una función indicadora para evaluar si un punto en 2D pertenece o no a una hipótesis de una elipse particular $h_{\boldsymbol{\theta}} \in \mathcal{H}_{\text{eli}}$, donde $\boldsymbol{\theta} = \{h, k, a, b\}$.
     
     \textbf{Solución:}
-    
-    La función indicadora para un elipse parametrizado por $\boldsymbol{\theta} = \{h, k, a, b\}$ se define como:
     
     $$h_{\boldsymbol{\theta}}(x,y) = \begin{cases}
     1 & \text{si } \frac{(x - h)^2}{a^2} + \frac{(y - k)^2}{b^2} \leq 1 \\
     0 & \text{en caso contrario}
     \end{cases}$$
     
-    donde:
-    \begin{itemize}
-        \item $(h, k)$ es el centro del elipse
-        \item $a$ es el semieje mayor (o menor) en la dirección $x$
-        \item $b$ es el semieje mayor (o menor) en la dirección $y$
-        \item $a, b > 0$
-    \end{itemize}
     
-    Un punto $(x,y)$ pertenece al interior del elipse (incluyendo la frontera) cuando la expresión normalizada es menor o igual a 1.
-    
-    
-    \item[b)] Escribe a manera de pseudocódigo un algoritmo para encontrar los parámetros $\boldsymbol{\theta}' = \{h', k', a', b'\}$ del elipse más pequeño que sólo permite un error menor o igual al 10\% de clasificaciones incorrectas (para una de dos clases) del total de puntos $\mathcal{X} = \{(x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n)\}$.
+    \item[b)] Escribe a manera de pseudocódigo un algoritmo para encontrar los parámetros $\boldsymbol{\theta}' = \{h', k', a', b'\}$ de la elipse más pequeña que sólo permite un error menor o igual a un umbral $\alpha$ (relativamente pequeño; por ejemplo, 10\%) de clasificaciones incorrectas (para una de dos clases) del total de puntos $\mathcal{X} = \{(x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n)\}$.
     
     \textbf{Solución:}
     
     \begin{verbatim}
-    ALGORITMO: Elipse_Minimo_Con_Tolerancia (búsqueda por escalamiento)
+    ALGORITMO: Elipse_Minimo_Con_Umbral_Alpha (búsqueda por escalamiento)
     
     ENTRADA:
     - X: conjunto de puntos {(x_i, y_i)}
     - Y: etiquetas en {+1, -1} (interior = +1)
-    - tolerancia: 0.1 (10% error máximo)
+    - alpha \in (0, 1): umbral de error permitido (p. ej., 0.1; puede ser > 0.1 si es relativamente pequeño)
     
     1. Separar por clase y fijar presupuesto de error:
        X_pos = { (x_i, y_i) | Y_i = +1 }
        X_neg = { (x_i, y_i) | Y_i = -1 }
        n = |X|
-       max_errores = floor(tolerancia * n)
+       max_errores = floor(alpha * n)
     
     2. Estimar centro y forma base con la clase positiva:
        h' = media(x | (x,y) en X_pos)
@@ -80,7 +68,7 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes del elipse.
            # pequeño en caso de empate)
            mejor_s = argmin_por((errores(s), s), s en S)
     
-    6. Definir el elipse mínimo:
+    6. Definir la elipse mínima:
        a' = a0 * mejor_s
        b' = b0 * mejor_s
        theta' = {h', k', a', b'}
@@ -104,7 +92,7 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes del elipse.
     
     ENTRADA:
     - X, Y: puntos y etiquetas
-    - theta' = {h', k', a', b'}: elipse mínimo del inciso b)
+    - theta' = {h', k', a', b'}: la elipse mínima del inciso b)
     
     1. errores_iniciales = contar_errores(X, Y, theta')
     
@@ -122,7 +110,7 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes del elipse.
            s_max = 1.0   # cualquier expansión introduciría nuevos FP si ya \
                        # hay negativos en el borde
        
-    4. Definir el elipse expandido:
+    4. Definir la elipse expandida:
        a'' = a' * s_max
        b'' = b' * s_max
        theta'' = {h', k', a'', b''}
@@ -148,28 +136,18 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes del elipse.
     
     \textbf{Solución:}
     
-    La hipótesis final se obtiene mediante interpolación lineal entre los dos elipses:
-    
-    $$\boldsymbol{\theta}_{\text{final}} = \alpha \boldsymbol{\theta}' + (1-\alpha) \boldsymbol{\theta}''$$
-    
-    donde $\alpha = 0.5$ para obtener el punto medio.
-    
-    Específicamente:
+    Elipse intermedio:
     \begin{align}
-    h_{\text{final}} &= h' \quad \text{(el centro no cambia)} \\
-    k_{\text{final}} &= k' \quad \text{(el centro no cambia)} \\
+    h_{\text{final}} &= h' \\
+    k_{\text{final}} &= k' \\
     a_{\text{final}} &= \frac{a' + a''}{2} \\
     b_{\text{final}} &= \frac{b' + b''}{2}
     \end{align}
-    
-    Por tanto, la función indicadora final es:
     
     $$h_{\text{final}}(x,y) = \begin{cases}
     1 & \text{si } \frac{(x - h')^2}{a_{\text{final}}^2} + \frac{(y - k')^2}{b_{\text{final}}^2} \leq 1 \\
     0 & \text{en caso contrario}
     \end{cases}$$
-    
-    Esta elección balanceada permite un compromiso entre el elipse más pequeño (que minimiza el error de entrenamiento) y el elipse más grande (que maximiza el margen), lo que puede resultar en mejor generalización.
     
     
     \item[e)] Implementarás esto en la práctica asociada a este ejercicio.

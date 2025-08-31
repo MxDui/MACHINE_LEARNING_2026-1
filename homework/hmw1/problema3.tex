@@ -16,43 +16,22 @@ Verifica que si $L_{kj} = 1 - I_{kj}$, donde $I_{kj}$ son los elementos de la ma
 
 \textbf{Solución:}
 
-Esta es la función de pérdida 0-1 estándar en problemas de clasificación. Procederemos paso a paso:
-
-\textbf{1. Definición de la función de pérdida:}
-
-Con $L_{kj} = 1 - I_{kj}$, donde $I_{kj}$ son los elementos de la matriz identidad, tenemos:
+Con $L_{kj} = 1 - I_{kj}$:
 $$L_{kj} = \begin{cases}
-0 & \text{si } k = j \text{ (clasificación correcta)} \\
-1 & \text{si } k \neq j \text{ (clasificación incorrecta)}
+0 & \text{si } k = j \\
+1 & \text{si } k \neq j
 \end{cases}$$
 
-\textbf{2. Cálculo de la pérdida esperada para asignar a la clase $j$:}
-
-La expresión a minimizar para cada $x$ es:
-$$\sum_{k} L_{kj} p(\mathcal{C}_k|x)$$
-
-Sustituyendo $L_{kj} = 1 - I_{kj}$:
+La expresión a minimizar:
 \begin{align}
 \sum_{k} L_{kj} p(\mathcal{C}_k|x) &= \sum_{k} (1 - I_{kj}) p(\mathcal{C}_k|x) \\
 &= \sum_{k} p(\mathcal{C}_k|x) - \sum_{k} I_{kj} p(\mathcal{C}_k|x) \\
 &= 1 - p(\mathcal{C}_j|x)
 \end{align}
 
-donde usamos que $\sum_{k} p(\mathcal{C}_k|x) = 1$ y $\sum_{k} I_{kj} p(\mathcal{C}_k|x) = p(\mathcal{C}_j|x)$.
+Minimizar $[1 - p(\mathcal{C}_j|x)]$ equivale a maximizar $p(\mathcal{C}_j|x)$.
 
-\textbf{3. Minimización:}
-
-Para minimizar el riesgo esperado, debemos encontrar:
-$$\arg\min_{j} \left[ 1 - p(\mathcal{C}_j|x) \right]$$
-
-Como el término constante $1$ no afecta la minimización:
-$$\arg\min_{j} \left[ 1 - p(\mathcal{C}_j|x) \right] = \arg\min_{j} \left[ - p(\mathcal{C}_j|x) \right] = \arg\max_{j} p(\mathcal{C}_j|x)$$
-
-\textbf{Conclusión:}
-
-Con la función de pérdida 0-1, la regla de decisión óptima es elegir la clase $i$ con la probabilidad a posteriori más alta:
+Por tanto, la regla óptima es:
 $$i^* = \arg\max_{j} p(\mathcal{C}_j|x)$$
-
-Esta es la regla de decisión de Bayes para clasificación, que minimiza la probabilidad de error de clasificación.
 
 
