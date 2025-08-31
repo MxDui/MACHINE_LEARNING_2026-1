@@ -13,143 +13,244 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
     
     \textbf{Solución:}
     
+    \textbf{Paso 1: Entender la ecuación de la elipse}
+    
+    La ecuación estándar de una elipse con centro en $(h, k)$ y semiejes $a$ y $b$ es:
+    $$\frac{(x - h)^2}{a^2} + \frac{(y - k)^2}{b^2} = 1$$
+    
+    Esta ecuación define la \textit{frontera} de la elipse. Los puntos que satisfacen esta ecuación exactamente están sobre el perímetro de la elipse.
+    
+    \textbf{Paso 2: Generalizar para el interior}
+    
+    Para determinar si un punto está dentro, sobre, o fuera de la elipse, evaluamos:
+    $$d(x, y) = \frac{(x - h)^2}{a^2} + \frac{(y - k)^2}{b^2}$$
+    
+    La interpretación geométrica es:
+    \begin{itemize}
+        \item Si $d(x, y) < 1$: el punto está \textit{dentro} de la elipse
+        \item Si $d(x, y) = 1$: el punto está \textit{sobre} la elipse
+        \item Si $d(x, y) > 1$: el punto está \textit{fuera} de la elipse
+    \end{itemize}
+    
+    \textbf{Paso 3: Definir la función indicadora}
+    
+    Para clasificación binaria, consideramos que un punto pertenece a la clase positiva si está dentro o sobre la elipse:
+    
     $$h_{\boldsymbol{\theta}}(x,y) = \begin{cases}
     1 & \text{si } \frac{(x - h)^2}{a^2} + \frac{(y - k)^2}{b^2} \leq 1 \\
     0 & \text{en caso contrario}
     \end{cases}$$
+    
+    \textbf{Interpretación matemática:} La función indicadora $h_{\boldsymbol{\theta}}: \mathbb{R}^2 \rightarrow \{0, 1\}$ divide el plano en dos regiones: el interior (incluyendo la frontera) de la elipse y el exterior.
     
     
     \item[b)] Escribe a manera de pseudocódigo un algoritmo para encontrar los parámetros $\boldsymbol{\theta}' = \{h', k', a', b'\}$ de la elipse más pequeña que sólo permite un error menor o igual a un umbral $\alpha$ (relativamente pequeño; por ejemplo, 10\%) de clasificaciones incorrectas (para una de dos clases) del total de puntos $\mathcal{X} = \{(x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n)\}$.
     
     \textbf{Solución:}
     
-    \begin{verbatim}
-    ALGORITMO: Elipse_Minimo_Con_Umbral_Alpha (búsqueda por escalamiento)
+    \textbf{Paso 1: Formulación del problema}
     
-    ENTRADA:
-    - X: conjunto de puntos {(x_i, y_i)}
-    - Y: etiquetas en {+1, -1} (interior = +1)
-    - alpha \in (0, 1): umbral de error permitido (p. ej., 0.1; puede ser > 0.1 si es relativamente pequeño)
+    Buscamos la elipse más pequeña (en área) que clasifique correctamente al menos $(1-\alpha) \cdot n$ puntos, donde $n = |\mathcal{X}|$.
     
-    1. Separar por clase y fijar presupuesto de error:
-       X_pos = { (x_i, y_i) | Y_i = +1 }
-       X_neg = { (x_i, y_i) | Y_i = -1 }
-       n = |X|
-       max_errores = floor(alpha * n)
+    \textbf{Definición matemática:} Minimizar $\pi a' b'$ (área de la elipse) sujeto a:
+    $$\sum_{i=1}^{n} \mathbb{1}_{\{h_{\boldsymbol{\theta}'}(x_i, y_i) \neq y_i\}} \leq \lfloor \alpha \cdot n \rfloor$$
     
-    2. Estimar centro y forma base con la clase positiva:
-       h' = media(x | (x,y) en X_pos)
-       k' = media(y | (x,y) en X_pos)
-       eps = 1e-9
-       a0 = desviacion_estandar(x | (x,y) en X_pos) + eps
-       b0 = desviacion_estandar(y | (x,y) en X_pos) + eps
+    \textbf{Paso 2: Estrategia de escalamiento}
     
-    3. Precomputar distancias normalizadas respecto a (h', k', a0, b0):
-       Para cada punto (x_i, y_i):
-           d_i = sqrt( (x_i - h')^2 / a0^2 + (y_i - k')^2 / b0^2 )
+    La idea es:
+    \begin{enumerate}
+        \item Estimar la forma y orientación de la elipse usando la clase positiva
+        \item Encontrar la escala mínima que respete el presupuesto de error
+    \end{enumerate}
     
-    4. Construir lista de escalas candidatas:
-       S = valores_únicos_ordenados({ d_i : i = 1..n })
-       # Clasificación con escala s: pred_i(s) = +1 si d_i <= s, \
-       # en otro caso -1
+    \textbf{Paso 3: Algoritmo paso a paso}
     
-    5. Encontrar el menor s que cumple el presupuesto:
-       mejor_s = None
-       mejor_err = +infinito
-       PARA cada s en S (en orden ascendente):
-           errores = contar_errores_con_s(d, Y, s)
-           SI errores < mejor_err:
-               mejor_err = errores
-           SI errores <= max_errores y (mejor_s es None):
-               mejor_s = s   # es el más pequeño por el orden
-               # opcional: si mejor_err == 0, romper
-       SI mejor_s es None:
-           # No hay s que cumpla; tomar el s con menor #errores (y el más \
-           # pequeño en caso de empate)
-           mejor_s = argmin_por((errores(s), s), s en S)
-    
-    6. Definir la elipse mínima:
-       a' = a0 * mejor_s
-       b' = b0 * mejor_s
-       theta' = {h', k', a', b'}
-       RETORNAR theta'
-    
-    FUNCIÓN contar_errores_con_s(d, Y, s):
-        errores = 0
-        PARA i = 1..n:
-            pred = +1 si d_i <= s, en otro caso -1
-            SI pred != Y_i: errores += 1
-        RETORNAR errores
-    \end{verbatim}
+    \begin{algorithm}[H]
+    \caption{ElipseMinima - Encontrar elipse mínima con umbral de error}
+    \begin{algorithmic}[1]
+    \Require $\mathcal{X} = \{(x_i, y_i)\}_{i=1}^n$, $\mathcal{Y} = \{y_i\}_{i=1}^n \subseteq \{-1, +1\}$, $\alpha \in (0, 1)$
+    \Ensure $\boldsymbol{\theta}' = \{h', k', a', b'\}$
+    \State \Comment{Separación por clases}
+    \State $\mathcal{X}^+ \gets \{(x_i, y_i) : y_i = +1\}$
+    \State $\mathcal{X}^- \gets \{(x_i, y_i) : y_i = -1\}$
+    \State $n^+ \gets |\mathcal{X}^+|$, $n^- \gets |\mathcal{X}^-|$
+    \State $\text{max\_errores} \gets \lfloor \alpha \cdot n \rfloor$
+    \State
+    \State \Comment{Estimación del centro}
+    \State $h' \gets \frac{1}{n^+} \sum_{(x,y) \in \mathcal{X}^+} x$
+    \State $k' \gets \frac{1}{n^+} \sum_{(x,y) \in \mathcal{X}^+} y$
+    \State
+    \State \Comment{Estimación de la forma base}
+    \State $\epsilon \gets 1 \times 10^{-9}$
+    \State $a_0 \gets \sqrt{\frac{1}{n^+} \sum_{(x,y) \in \mathcal{X}^+} (x - h')^2} + \epsilon$
+    \State $b_0 \gets \sqrt{\frac{1}{n^+} \sum_{(x,y) \in \mathcal{X}^+} (y - k')^2} + \epsilon$
+    \State
+    \State \Comment{Cálculo de distancias normalizadas}
+    \For{cada punto $(x_i, y_i) \in \mathcal{X}$}
+        \State $d_i \gets \sqrt{\frac{(x_i - h')^2}{a_0^2} + \frac{(y_i - k')^2}{b_0^2}}$
+    \EndFor
+    \State
+    \State \Comment{Búsqueda de la escala óptima}
+    \State $\mathcal{S} \gets $ valores únicos ordenados de $\{d_i : i = 1, \ldots, n\}$
+    \For{cada $s \in \mathcal{S}$ (en orden ascendente)}
+        \State $\text{errores} \gets 0$
+        \For{$i = 1$ \textbf{to} $n$}
+            \If{$d_i \leq s$}
+                \State $\text{pred}_i \gets +1$
+            \Else
+                \State $\text{pred}_i \gets -1$
+            \EndIf
+            \If{$\text{pred}_i \neq y_i$}
+                \State $\text{errores} \gets \text{errores} + 1$
+            \EndIf
+        \EndFor
+        \If{$\text{errores} \leq \text{max\_errores}$}
+            \State $s^* \gets s$
+            \State \textbf{break}
+        \EndIf
+    \EndFor
+    \State
+    \State \Comment{Parámetros finales}
+    \State $a' \gets a_0 \cdot s^*$
+    \State $b' \gets b_0 \cdot s^*$
+    \State \Return $\boldsymbol{\theta}' = \{h', k', a', b'\}$
+    \end{algorithmic}
+    \end{algorithm}
     
     
     \item[c)] Ahora encuentra también a manera de pseudocódigo los parámetros del elipse más grande que no introduce nuevos errores. Puedes partir de los parámetros $\boldsymbol{\theta}'$ del inciso anterior.
     
     \textbf{Solución:}
     
-    \begin{verbatim}
-    ALGORITMO: Elipse_Maximo_Sin_Nuevos_Errores (expansión segura)
+    \textbf{Paso 1: Problema de optimización}
     
-    ENTRADA:
-    - X, Y: puntos y etiquetas
-    - theta' = {h', k', a', b'}: la elipse mínima del inciso b)
+    Dada la elipse mínima $\boldsymbol{\theta}' = \{h', k', a', b'\}$, buscamos la elipse máxima $\boldsymbol{\theta}'' = \{h', k', a'', b''\}$ tal que:
     
-    1. errores_iniciales = contar_errores(X, Y, theta')
+    $$\text{errores}(\boldsymbol{\theta}'') = \text{errores}(\boldsymbol{\theta}')$$
     
-    2. Para cada punto negativo (Y_i = -1), calcular
-       d_i = sqrt( (x_i - h')^2 / a'^2 + (y_i - k')^2 / b'^2 )
+    Es decir, no introducimos errores adicionales.
     
-    3. Factor de expansión máximo que no introduce nuevos errores:
-       # Al escalar a', b' por s > 1, las nuevas distancias son d_i / s.
-       candidatos = { d_i : Y_i = -1 y d_i > 1 }
-       SI candidatos no vacío:
-           s_max = min(candidatos) - epsilon   # asegura que ningún negativo \
-                                               # fuera cruce a d<=1
-           s_max = max(s_max, 1.0)
-       EN OTRO CASO:
-           s_max = 1.0   # cualquier expansión introduciría nuevos FP si ya \
-                       # hay negativos en el borde
-       
-    4. Definir la elipse expandida:
-       a'' = a' * s_max
-       b'' = b' * s_max
-       theta'' = {h', k', a'', b''}
+    \textbf{Paso 2: Restricción geométrica}
     
-    5. Verificación:
-       SI contar_errores(X, Y, theta'') > errores_iniciales:
-           s_max = s_max * 0.999  # reducir ligeramente y volver a probar
-           repetir paso 4 y 5 hasta cumplir
+    Para no introducir nuevos errores, la elipse expandida no debe incluir puntos negativos que estaban correctamente clasificados como negativos.
     
-    6. RETORNAR theta''
+    \textbf{Criterio:} Si $(x_i, y_i) \in \mathcal{X}^-$ y está correctamente clasificado por $\boldsymbol{\theta}'$, entonces:
+    $$\frac{(x_i - h')^2}{(a')^2} + \frac{(y_i - k')^2}{(b')^2} > 1$$
     
-    FUNCIÓN contar_errores(X, Y, {h, k, a, b}):
-        errores = 0
-        PARA cada (x_i, y_i), Y_i:
-            d = sqrt( (x_i - h)^2 / a^2 + (y_i - k)^2 / b^2 )
-            pred = +1 si d <= 1, en otro caso -1
-            SI pred != Y_i: errores += 1
-        RETORNAR errores
-    \end{verbatim}
+    \textbf{Paso 3: Factor de expansión}
+    
+    Si escalamos uniformemente: $a'' = s \cdot a'$ y $b'' = s \cdot b'$ con $s \geq 1$, entonces la nueva distancia normalizada para el punto $(x_i, y_i)$ es:
+    
+    $$d_i^{(s)} = \sqrt{\frac{(x_i - h')^2}{(s \cdot a')^2} + \frac{(y_i - k')^2}{(s \cdot b')^2}} = \frac{d_i^{(\text{original})}}{s}$$
+    
+    \textbf{Paso 4: Algoritmo de expansión}
+    
+    \begin{algorithm}[H]
+    \caption{ElipseMaxima - Encontrar elipse máxima sin nuevos errores}
+    \begin{algorithmic}[1]
+    \Require $\boldsymbol{\theta}' = \{h', k', a', b'\}$, $\mathcal{X}$, $\mathcal{Y}$
+    \Ensure $\boldsymbol{\theta}'' = \{h', k', a'', b''\}$
+    \State \Comment{Calcular distancias originales}
+    \For{cada punto $(x_i, y_i) \in \mathcal{X}$}
+        \State $d_i^{(\text{original})} \gets \sqrt{\frac{(x_i - h')^2}{(a')^2} + \frac{(y_i - k')^2}{(b')^2}}$
+    \EndFor
+    \State
+    \State \Comment{Identificar puntos negativos externos}
+    \State $\mathcal{N} \gets \{i : y_i = -1 \text{ y } d_i^{(\text{original})} > 1\}$
+    \State
+    \State \Comment{Calcular factor de expansión máximo}
+    \If{$\mathcal{N} \neq \emptyset$}
+        \State $\delta \gets 1 \times 10^{-6}$
+        \State $s_{\max} \gets \min_{i \in \mathcal{N}} d_i^{(\text{original})} - \delta$
+        \State $s_{\max} \gets \max(s_{\max}, 1.0)$
+    \Else
+        \State $s_{\max} \gets 1.0$
+    \EndIf
+    \State
+    \State \Comment{Parámetros de la elipse máxima}
+    \State $a'' \gets s_{\max} \cdot a'$
+    \State $b'' \gets s_{\max} \cdot b'$
+    \State
+    \State \Comment{Verificación final}
+    \State $\text{errores\_original} \gets $ contar\_errores($\mathcal{X}$, $\mathcal{Y}$, $\boldsymbol{\theta}'$)
+    \State $\text{errores\_expandida} \gets $ contar\_errores($\mathcal{X}$, $\mathcal{Y}$, $\{h', k', a'', b''\}$)
+    \While{$\text{errores\_expandida} > \text{errores\_original}$}
+        \State $s_{\max} \gets s_{\max} \times 0.999$
+        \State $a'' \gets s_{\max} \cdot a'$
+        \State $b'' \gets s_{\max} \cdot b'$
+        \State $\text{errores\_expandida} \gets $ contar\_errores($\mathcal{X}$, $\mathcal{Y}$, $\{h', k', a'', b''\}$)
+    \EndWhile
+    \State
+    \State \Return $\boldsymbol{\theta}'' = \{h', k', a'', b''\}$
+    \end{algorithmic}
+    \end{algorithm}
     
     
     \item[d)] Finalmente propón como hipótesis para la función indicadora un elipse que esté entre ambos (de los incisos b y c), por ejemplo a la mitad del camino paramétricamente hablando.
     
     \textbf{Solución:}
     
-    Elipse intermedio:
+    \textbf{Paso 1: Motivación para la interpolación}
+    
+    La elipse mínima $\boldsymbol{\theta}'$ minimiza el error de entrenamiento pero puede ser muy conservadora (alto sesgo). La elipse máxima $\boldsymbol{\theta}''$ maximiza el margen pero puede ser muy permisiva. Una interpolación puede balancear estos extremos.
+    
+    \textbf{Paso 2: Interpolación lineal}
+    
+    Para un parámetro de interpolación $\lambda \in [0, 1]$, definimos:
+    
     \begin{align}
-    h_{\text{final}} &= h' \\
-    k_{\text{final}} &= k' \\
+    h_{\text{final}} &= h' \quad \text{(el centro no cambia)} \\
+    k_{\text{final}} &= k' \quad \text{(el centro no cambia)} \\
+    a_{\text{final}} &= (1 - \lambda) a' + \lambda a'' \\
+    b_{\text{final}} &= (1 - \lambda) b' + \lambda b''
+    \end{align}
+    
+    \textbf{Caso especial ($\lambda = 0.5$):} Para el punto medio:
+    \begin{align}
     a_{\text{final}} &= \frac{a' + a''}{2} \\
     b_{\text{final}} &= \frac{b' + b''}{2}
     \end{align}
+    
+    \textbf{Paso 3: Función indicadora interpolada}
     
     $$h_{\text{final}}(x,y) = \begin{cases}
     1 & \text{si } \frac{(x - h')^2}{a_{\text{final}}^2} + \frac{(y - k')^2}{b_{\text{final}}^2} \leq 1 \\
     0 & \text{en caso contrario}
     \end{cases}$$
     
+    \textbf{Paso 4: Interpretación geométrica}
+    
+    La elipse interpolada tiene:
+    \begin{itemize}
+        \item \textbf{Área:} $\pi a_{\text{final}} b_{\text{final}} = \pi \cdot \frac{a' + a''}{2} \cdot \frac{b' + b''}{2}$
+        \item \textbf{Error esperado:} Entre el error mínimo y el error de la elipse máxima
+        \item \textbf{Generalización:} Potencialmente mejor que los extremos
+    \end{itemize}
+    
+    \textbf{Paso 5: Validación}
+    
+    Para validar la elección de $\lambda$, se puede:
+    \begin{enumerate}
+        \item Usar validación cruzada para seleccionar $\lambda^* \in [0, 1]$
+        \item Evaluar el error en un conjunto de prueba
+        \item Comparar con $\lambda = 0$ (elipse mínima) y $\lambda = 1$ (elipse máxima)
+    \end{enumerate}
+    
     
     \item[e)] Implementarás esto en la práctica asociada a este ejercicio.
+    
+    \textbf{Guía para la implementación:}
+    
+    La implementación debe incluir las siguientes funciones matemáticas:
+    
+    \textbf{Función 1: Evaluación de la función indicadora}
+    $$f_{\text{indicadora}}(\boldsymbol{\theta}, x, y) = \mathbb{1}_{\left\{\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2} \leq 1\right\}}$$
+    
+    \textbf{Función 2: Cálculo de error}
+    $$E(\boldsymbol{\theta}) = \frac{1}{n} \sum_{i=1}^{n} \mathbb{1}_{\{h_{\boldsymbol{\theta}}(x_i, y_i) \neq y_i\}}$$
+    
+    \textbf{Función 3: Optimización de parámetros}
+    
+    Implementar los algoritmos ElipseMinima y ElipseMaxima descritos en los incisos anteriores.
+    
 \end{enumerate}
-

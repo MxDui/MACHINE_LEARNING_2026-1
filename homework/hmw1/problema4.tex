@@ -7,85 +7,283 @@ En los ejercicios 1 y 2 obtuviste funciones indicadoras para evaluar la pertenen
     
     \textbf{Solución:}
     
-    Función de pérdida suave para la elipse:
+    \textbf{Paso 1: Motivación para la función suave}
     
-    $$L_{\text{soft}}(x, y) = \begin{cases}
-    0 & \text{si } d(x,y) \leq 1 \\
-    \frac{d(x,y) - 1}{\delta} & \text{si } 1 < d(x,y) \leq 1 + \delta \\
-    1 & \text{si } d(x,y) > 1 + \delta
+    Las funciones indicadoras binarias presentan dos limitaciones principales:
+    \begin{itemize}
+        \item \textbf{Discontinuidad:} Cambio abrupto de 0 a 1 en la frontera
+        \item \textbf{No diferenciabilidad:} Dificulta la optimización con métodos basados en gradiente
+        \item \textbf{Rigidez:} No permite grados de pertenencia o incertidumbre
+    \end{itemize}
+    
+    \textbf{Paso 2: Concepto de función de pérdida relajada}
+    
+    Una función de pérdida relajada $L_{\text{soft}}: \mathbb{R}^2 \rightarrow [0, 1]$ debe satisfacer:
+    \begin{enumerate}
+        \item \textbf{Continuidad:} $L_{\text{soft}}(x, y)$ es continua
+        \item \textbf{Monotonicidad:} Mayor distancia a la frontera implica mayor pérdida
+        \item \textbf{Compatibilidad:} $\lim_{\delta \to 0^+} L_{\text{soft}}(x, y) = L_{\text{hard}}(x, y)$
+    \end{enumerate}
+    
+    \textbf{Paso 3: Definición matemática para elipse}
+    
+    Para una hipótesis de elipse con parámetros $\boldsymbol{\theta} = \{h, k, a, b\}$, definimos la \textbf{distancia normalizada}:
+    
+    $$d(x, y; \boldsymbol{\theta}) = \sqrt{\frac{(x - h)^2}{a^2} + \frac{(y - k)^2}{b^2}}$$
+    
+    \textbf{Interpretación geométrica:}
+    \begin{itemize}
+        \item $d(x, y) = 1$: punto en la frontera de la elipse
+        \item $d(x, y) < 1$: punto en el interior
+        \item $d(x, y) > 1$: punto en el exterior
+    \end{itemize}
+    
+    \textbf{Paso 4: Función de pérdida relajada por partes}
+    
+    Definimos la función de pérdida suave con parámetro de suavidad $\delta > 0$:
+    
+    $$L_{\text{soft}}(x, y; \boldsymbol{\theta}, \delta) = \begin{cases}
+    0 & \text{si } d(x, y) \leq 1 \\
+    \frac{d(x, y) - 1}{\delta} & \text{si } 1 < d(x, y) \leq 1 + \delta \\
+    1 & \text{si } d(x, y) > 1 + \delta
     \end{cases}$$
     
-    donde $d(x,y) = \sqrt{\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2}}$ y $\delta > 0$ controla el ancho de transición.
+    \textbf{Propiedades matemáticas:}
+    \begin{enumerate}
+        \item \textbf{Rango:} $L_{\text{soft}} \in [0, 1]$
+        \item \textbf{Continuidad:} La función es continua en todo $\mathbb{R}^2$
+        \item \textbf{Límite:} $\lim_{\delta \to 0^+} L_{\text{soft}}(x, y) = \mathbb{1}_{\{d(x,y) > 1\}}$
+    \end{enumerate}
     
     
     \item[b)] Tú debes definir una manera de extender la frontera hasta cierta distancia máxima más allá de la frontera original. Por ejemplo: englobando a la hipótesis dentro de un círculo con cierto radio, o definiendo una distancia $\Delta d$ más allá de la frontera de la hipótesis.
     
     \textbf{Solución:}
     
-    Zona de transición con ancho $\delta$:
+    \textbf{Paso 1: Concepto de zona de transición}
+    
+    La extensión de la frontera crea una \textbf{zona de transición} (o margen suave) alrededor de la hipótesis original donde la clasificación no es binaria sino gradual.
+    
+    \textbf{Paso 2: Definición formal de la extensión}
+    
+    Para una elipse con parámetros $\boldsymbol{\theta} = \{h, k, a, b\}$ y parámetro de extensión $\delta > 0$, definimos tres regiones:
+    
+    \begin{align}
+    \mathcal{R}_{\text{interior}} &= \{(x, y) : d(x, y; \boldsymbol{\theta}) \leq 1\} \\
+    \mathcal{R}_{\text{transición}} &= \{(x, y) : 1 < d(x, y; \boldsymbol{\theta}) \leq 1 + \delta\} \\
+    \mathcal{R}_{\text{exterior}} &= \{(x, y) : d(x, y; \boldsymbol{\theta}) > 1 + \delta\}
+    \end{align}
+    
+    \textbf{Paso 3: Interpretación geométrica de la extensión}
+    
+    La zona de transición $\mathcal{R}_{\text{transición}}$ forma una ``cáscara elíptica'' definida por:
+    
+    \textbf{Frontera interior:} $\frac{(x - h)^2}{a^2} + \frac{(y - k)^2}{b^2} = 1$
+    
+    \textbf{Frontera exterior:} $\frac{(x - h)^2}{(a\sqrt{1 + \delta})^2} + \frac{(y - k)^2}{(b\sqrt{1 + \delta})^2} = 1$
+    
+    \textbf{Paso 4: Parametrización alternativa usando distancia euclidiana}
+    
+    \textbf{Método 1: Extensión uniforme}
+    
+    Extender la elipse uniformemente en todas las direcciones:
+    $$\boldsymbol{\theta}_{\text{ext}} = \{h, k, a + \Delta a, b + \Delta b\}$$
+    donde $\Delta a, \Delta b > 0$ son extensiones en los ejes principales.
+    
+    \textbf{Método 2: Extensión por factor de escala}
+    
+    Escalar la elipse por un factor $s > 1$:
+    $$\boldsymbol{\theta}_{\text{ext}} = \{h, k, s \cdot a, s \cdot b\}$$
+    
+    La zona de transición está entre las elipses con factores de escala $1$ y $s$.
+    
+    \textbf{Paso 5: Elección del parámetro de extensión}
+    
+    El parámetro $\delta$ controla el ancho de la zona de transición:
     
     \begin{itemize}
-        \item Frontera original: $d(x,y) = 1$
-        \item Zona de transición: $1 < d(x,y) \leq 1 + \delta$
-        \item Región exterior: $d(x,y) > 1 + \delta$
+        \item \textbf{$\delta$ pequeño ($\delta < 0.1$):} Transición muy estrecha, comportamiento casi binario
+        \item \textbf{$\delta$ moderado ($0.1 \leq \delta \leq 1$):} Balance entre suavidad y precisión
+        \item \textbf{$\delta$ grande ($\delta > 1$):} Transición muy gradual, alta tolerancia
     \end{itemize}
     
-    La zona forma una cáscara elíptica entre:
-    \begin{itemize}
-        \item Elipse original: $\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2} = 1$
-        \item Elipse expandida: $\frac{(x-h)^2}{(a(1+\delta))^2} + \frac{(y-k)^2}{(b(1+\delta))^2} = 1$
-    \end{itemize}
+    \textbf{Criterio de selección:} $\delta$ puede elegirse mediante validación cruzada o como fracción del tamaño característico de la hipótesis (ej. $\delta = 0.1 \cdot \max(a, b)$).
     
     
     \item[c)] En la región donde extiendas la frontera la función de pérdida debe penalizar en lugar de evaluar a cero.
     
     \textbf{Solución:}
     
-    $$L_{\text{relajada}}(x, y) = \begin{cases}
-    0 & \text{si } d(x,y) \leq 1 \\
-    \frac{d(x,y) - 1}{\delta} & \text{si } 1 < d(x,y) \leq 1 + \delta \\
-    1 & \text{si } d(x,y) > 1 + \delta
+    \textbf{Paso 1: Principio de penalización gradual}
+    
+    En lugar de una penalización binaria (0 o 1), implementamos una penalización que crece monotónicamente con la distancia a la frontera original.
+    
+    \textbf{Paso 2: Función de penalización lineal}
+    
+    La función de pérdida relajada con penalización lineal es:
+    
+    $$L_{\text{relajada}}(x, y; \boldsymbol{\theta}, \delta) = \begin{cases}
+    0 & \text{si } d(x, y) \leq 1 \\[0.5em]
+    \frac{d(x, y) - 1}{\delta} & \text{si } 1 < d(x, y) \leq 1 + \delta \\[0.5em]
+    1 & \text{si } d(x, y) > 1 + \delta
     \end{cases}$$
     
-    Penalización:
-    \begin{itemize}
-        \item Interior ($d \leq 1$): Sin pérdida
-        \item Transición ($1 < d \leq 1 + \delta$): Penalización lineal de 0 a 1
-        \item Exterior ($d > 1 + \delta$): Pérdida máxima
-    \end{itemize}
+    \textbf{Justificación matemática:}
+    
+    \textbf{Región interior ($d \leq 1$):}
+    $$L_{\text{relajada}}(x, y) = 0$$
+    \textit{Interpretación:} Clasificación completamente correcta, sin penalización.
+    
+    \textbf{Zona de transición ($1 < d \leq 1 + \delta$):}
+    $$L_{\text{relajada}}(x, y) = \frac{d - 1}{\delta} \in (0, 1)$$
+    \textit{Interpretación:} Penalización proporcional a la distancia de la frontera.
+    
+    \textbf{Región exterior ($d > 1 + \delta$):}
+    $$L_{\text{relajada}}(x, y) = 1$$
+    \textit{Interpretación:} Penalización máxima para puntos claramente fuera de la hipótesis extendida.
+    
+    \textbf{Paso 3: Propiedades de la función de penalización}
+    
+    \textbf{Continuidad:} Verificamos que la función es continua en los puntos de transición:
+    
+    \textit{En $d = 1$:}
+    $$\lim_{d \to 1^-} L(d) = 0, \quad \lim_{d \to 1^+} L(d) = \frac{1-1}{\delta} = 0$$
+    
+    \textit{En $d = 1 + \delta$:}
+    $$\lim_{d \to (1+\delta)^-} L(d) = \frac{(1+\delta)-1}{\delta} = 1, \quad \lim_{d \to (1+\delta)^+} L(d) = 1$$
+    
+    \textbf{Monotonicidad:} En la zona de transición:
+    $$\frac{dL}{dd} = \frac{1}{\delta} > 0$$
+    
+    \textbf{Paso 4: Interpretación probabilística}
+    
+    La función relajada puede interpretarse como la probabilidad de clasificación incorrecta:
+    
+    $$L_{\text{relajada}}(x, y) \approx P(\text{clasificación incorrecta} | \text{posición en zona de transición})$$
+    
+    donde la probabilidad aumenta linealmente con la distancia a la frontera.
     
     
     \item[d)] Puedes elegir para este ejercicio una de las hipótesis de los ejercicios 1 y 2.
     
     \textbf{Solución:}
     
-    Elección: Elipse del Ejercicio 2
+    \textbf{Elección: Hipótesis de elipse del Ejercicio 2}
     
-    $$L_{\text{elipse}}(x, y, h, k, a, b, \delta) = \begin{cases}
-    0 & \text{si } d \leq 1 \\
-    \frac{d - 1}{\delta} & \text{si } 1 < d \leq 1 + \delta \\
-    1 & \text{si } d > 1 + \delta
+    \textbf{Paso 1: Justificación de la elección}
+    
+    Elegimos la clase de hipótesis de elipses $\mathcal{H}_{\text{eli}}$ por las siguientes ventajas:
+    
+    \begin{enumerate}
+        \item \textbf{Simplicidad computacional:} La distancia normalizada se calcula eficientemente
+        \item \textbf{Diferenciabilidad:} La función es diferenciable en casi todo punto
+        \item \textbf{Flexibilidad geométrica:} Las elipses pueden adaptarse a diferentes formas de datos
+        \item \textbf{Parametrización compacta:} Solo 4 parámetros $\{h, k, a, b\}$ más $\delta$
+    \end{enumerate}
+    
+    \textbf{Paso 2: Definición completa de la función relajada}
+    
+    Para una elipse con parámetros $\boldsymbol{\theta} = \{h, k, a, b\}$ y parámetro de suavidad $\delta > 0$:
+    
+    $$L_{\text{elipse}}(x, y; \boldsymbol{\theta}, \delta) = \begin{cases}
+    0 & \text{si } d(x, y) \leq 1 \\[0.5em]
+    \frac{d(x, y) - 1}{\delta} & \text{si } 1 < d(x, y) \leq 1 + \delta \\[0.5em]
+    1 & \text{si } d(x, y) > 1 + \delta
     \end{cases}$$
     
-    donde $d = \sqrt{\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2}}$
+    donde:
+    $$d(x, y) = \sqrt{\frac{(x - h)^2}{a^2} + \frac{(y - k)^2}{b^2}}$$
+    
+    \textbf{Paso 3: Familia de funciones relajadas}
+    
+    Variando $\delta$, obtenemos una familia de funciones:
+    
+    $$\mathcal{F}_{\text{relajada}} = \{L_{\text{elipse}}(\cdot; \boldsymbol{\theta}, \delta) : \boldsymbol{\theta} \in \mathbb{R}^4, \delta \in \mathbb{R}^+\}$$
+    
+    \textbf{Casos límite:}
+    \begin{itemize}
+        \item $\delta \to 0^+$: Recuperamos la función indicadora binaria
+        \item $\delta \to \infty$: La función se vuelve completamente suave pero pierde precisión
+    \end{itemize}
+    
+    \textbf{Paso 4: Análisis de la superficie de pérdida}
+    
+    La función $L_{\text{elipse}}(x, y)$ define una superficie en $\mathbb{R}^3$ con:
+    
+    \textbf{Valores en regiones clave:}
+    \begin{itemize}
+        \item \textbf{Centro de la elipse:} $L(h, k) = 0$
+        \item \textbf{Frontera original:} $L(x, y) = 0$ para $d(x, y) = 1$
+        \item \textbf{Frontera extendida:} $L(x, y) = 1$ para $d(x, y) = 1 + \delta$
+    \end{itemize}
+    
+    \textbf{Gradiente en la zona de transición:}
+    $$\nabla L(x, y) = \frac{1}{\delta} \cdot \frac{\nabla d(x, y)}{d(x, y)} \cdot \left(\frac{x - h}{a^2}, \frac{y - k}{b^2}\right)^T$$
     
     
     \item[e)] Implementarás esto en la práctica asociada a este ejercicio.
     
     \textbf{Solución:}
     
-    Implementación:
+    \textbf{Guía para la implementación}
     
-    \begin{verbatim}
-def soft_loss_ellipse(x, y, h, k, a, b, delta):
-    dist = np.sqrt((x - h)**2 / a**2 + (y - k)**2 / b**2)
+    La implementación debe incluir las siguientes componentes matemáticas:
     
-    if dist <= 1:
-        return 0
-    elif dist <= 1 + delta:
-        return (dist - 1) / delta
-    else:
-        return 1
-    \end{verbatim}
+    \textbf{Función 1: Distancia normalizada}
+    $$d(\boldsymbol{x}; \boldsymbol{\theta}) = \sqrt{(\boldsymbol{x} - \boldsymbol{\mu})^T \boldsymbol{\Sigma}^{-1} (\boldsymbol{x} - \boldsymbol{\mu})}$$
+    
+    donde $\boldsymbol{\mu} = (h, k)^T$ y $\boldsymbol{\Sigma} = \text{diag}(a^2, b^2)$.
+    
+    \textbf{Función 2: Pérdida relajada}
+    $$L(\boldsymbol{x}; \boldsymbol{\theta}, \delta) = \max\left(0, \min\left(1, \frac{d(\boldsymbol{x}) - 1}{\delta}\right)\right)$$
+    
+    \textbf{Función 3: Gradiente de la pérdida}
+    
+    Para optimización, el gradiente respecto a los parámetros es:
+    $$\frac{\partial L}{\partial \boldsymbol{\theta}} = \begin{cases}
+    \mathbf{0} & \text{si } d \leq 1 \text{ o } d > 1 + \delta \\
+    \frac{1}{\delta} \frac{\partial d}{\partial \boldsymbol{\theta}} & \text{si } 1 < d \leq 1 + \delta
+    \end{cases}$$
+    
+    \textbf{Algoritmo de optimización:}
+    
+    \begin{algorithm}[H]
+    \caption{Optimización de Función de Pérdida Relajada}
+    \begin{algorithmic}[1]
+    \Require $\{\boldsymbol{x}_i\}_{i=1}^n$, $\{y_i\}_{i=1}^n$, $\delta > 0$, $\alpha > 0$ (tasa de aprendizaje), $\epsilon > 0$ (tolerancia)
+    \Ensure $\boldsymbol{\theta}^*$ (parámetros óptimos)
+    \State \Comment{Inicialización}
+    \State Inicializar $\boldsymbol{\theta}^{(0)}$ aleatoriamente
+    \State $t \gets 0$
+    \State $\text{converged} \gets \text{false}$
+    \State
+    \While{$\neg \text{converged}$}
+        \State \Comment{Calcular pérdida total}
+        \State $L_{\text{total}} \gets \sum_{i=1}^n L(\boldsymbol{x}_i; \boldsymbol{\theta}^{(t)}, \delta)$
+        \State
+        \State \Comment{Calcular gradientes}
+        \State $\nabla_{\boldsymbol{\theta}} L_{\text{total}} \gets \sum_{i=1}^n \nabla_{\boldsymbol{\theta}} L(\boldsymbol{x}_i; \boldsymbol{\theta}^{(t)}, \delta)$
+        \State
+        \State \Comment{Actualizar parámetros}
+        \State $\boldsymbol{\theta}^{(t+1)} \gets \boldsymbol{\theta}^{(t)} - \alpha \nabla_{\boldsymbol{\theta}} L_{\text{total}}$
+        \State
+        \State \Comment{Verificar convergencia}
+        \If{$\|\boldsymbol{\theta}^{(t+1)} - \boldsymbol{\theta}^{(t)}\| < \epsilon$}
+            \State $\text{converged} \gets \text{true}$
+        \EndIf
+        \State $t \gets t + 1$
+    \EndWhile
+    \State
+    \State \Return $\boldsymbol{\theta}^* = \boldsymbol{\theta}^{(t)}$
+    \end{algorithmic}
+    \end{algorithm}
+    
+    \textbf{Validación de la implementación:}
+    
+    \begin{enumerate}
+        \item Verificar que $\lim_{\delta \to 0} L(\boldsymbol{x}) = L_{\text{hard}}(\boldsymbol{x})$
+        \item Comprobar continuidad en las fronteras
+        \item Validar monotonicidad en la zona de transición
+    \end{enumerate}
     
 \end{enumerate}
