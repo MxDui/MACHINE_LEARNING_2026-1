@@ -7,25 +7,25 @@ En los ejercicios 1 y 2 obtuviste funciones indicadoras para evaluar la pertenen
     
     \textbf{Solución:}
     
-    \textbf{Paso 1: Motivación para la función suave}
+    \textbf{Justificación para la función suave:}
     
-    Las funciones indicadoras binarias presentan dos limitaciones principales:
+    Las funciones indicadoras binarias presentan limitaciones importantes:
     \begin{itemize}
         \item \textbf{Discontinuidad:} Cambio abrupto de 0 a 1 en la frontera
         \item \textbf{No diferenciabilidad:} Dificulta la optimización con métodos basados en gradiente
         \item \textbf{Rigidez:} No permite grados de pertenencia o incertidumbre
     \end{itemize}
     
-    \textbf{Paso 2: Concepto de función de pérdida relajada}
+    \textbf{Propuesta de función de pérdida relajada:}
     
-    Una función de pérdida relajada $L_{\text{soft}}: \mathbb{R}^2 \rightarrow [0, 1]$ debe satisfacer:
+    Mi función de pérdida relajada $L_{\text{soft}}: \mathbb{R}^2 \rightarrow [0, 1]$ satisface:
     \begin{enumerate}
         \item \textbf{Continuidad:} $L_{\text{soft}}(x, y)$ es continua
         \item \textbf{Monotonicidad:} Mayor distancia a la frontera implica mayor pérdida
         \item \textbf{Compatibilidad:} $\lim_{\delta \to 0^+} L_{\text{soft}}(x, y) = L_{\text{hard}}(x, y)$
     \end{enumerate}
     
-    \textbf{Paso 3: Definición matemática para elipse}
+    \textbf{Definición matemática para elipse}
     
     Para una hipótesis de elipse con parámetros $\boldsymbol{\theta} = \{h, k, a, b\}$, definimos la \textbf{distancia normalizada}:
     
@@ -38,7 +38,7 @@ En los ejercicios 1 y 2 obtuviste funciones indicadoras para evaluar la pertenen
         \item $d(x, y) > 1$: punto en el exterior
     \end{itemize}
     
-    \textbf{Paso 4: Función de pérdida relajada por partes}
+    \textbf{Función de pérdida relajada por partes}
     
     Definimos la función de pérdida suave con parámetro de suavidad $\delta > 0$:
     
@@ -60,11 +60,11 @@ En los ejercicios 1 y 2 obtuviste funciones indicadoras para evaluar la pertenen
     
     \textbf{Solución:}
     
-    \textbf{Paso 1: Concepto de zona de transición}
+    \textbf{Concepto de zona de transición}
     
     La extensión de la frontera crea una \textbf{zona de transición} (o margen suave) alrededor de la hipótesis original donde la clasificación no es binaria sino gradual.
     
-    \textbf{Paso 2: Definición formal de la extensión}
+    \textbf{Definición formal de la extensión}
     
     Para una elipse con parámetros $\boldsymbol{\theta} = \{h, k, a, b\}$ y parámetro de extensión $\delta > 0$, definimos tres regiones:
     
@@ -74,7 +74,7 @@ En los ejercicios 1 y 2 obtuviste funciones indicadoras para evaluar la pertenen
     \mathcal{R}_{\text{exterior}} &= \{(x, y) : d(x, y; \boldsymbol{\theta}) > 1 + \delta\}
     \end{align}
     
-    \textbf{Paso 3: Interpretación geométrica de la extensión}
+    \textbf{Interpretación geométrica de la extensión}
     
     La zona de transición $\mathcal{R}_{\text{transición}}$ forma una ``cáscara elíptica'' definida por:
     
@@ -82,7 +82,7 @@ En los ejercicios 1 y 2 obtuviste funciones indicadoras para evaluar la pertenen
     
     \textbf{Frontera exterior:} $\frac{(x - h)^2}{(a\sqrt{1 + \delta})^2} + \frac{(y - k)^2}{(b\sqrt{1 + \delta})^2} = 1$
     
-    \textbf{Paso 4: Parametrización alternativa usando distancia euclidiana}
+    \textbf{Parametrización alternativa usando distancia euclidiana}
     
     \textbf{Método 1: Extensión uniforme}
     
@@ -97,7 +97,7 @@ En los ejercicios 1 y 2 obtuviste funciones indicadoras para evaluar la pertenen
     
     La zona de transición está entre las elipses con factores de escala $1$ y $s$.
     
-    \textbf{Paso 5: Elección del parámetro de extensión}
+    \textbf{Elección del parámetro de extensión}
     
     El parámetro $\delta$ controla el ancho de la zona de transición:
     
@@ -114,11 +114,11 @@ En los ejercicios 1 y 2 obtuviste funciones indicadoras para evaluar la pertenen
     
     \textbf{Solución:}
     
-    \textbf{Paso 1: Principio de penalización gradual}
+    \textbf{Principio de penalización gradual}
     
     En lugar de una penalización binaria (0 o 1), implementamos una penalización que crece monotónicamente con la distancia a la frontera original.
     
-    \textbf{Paso 2: Función de penalización lineal}
+    \textbf{Función de penalización lineal}
     
     La función de pérdida relajada con penalización lineal es:
     
@@ -142,7 +142,7 @@ En los ejercicios 1 y 2 obtuviste funciones indicadoras para evaluar la pertenen
     $$L_{\text{relajada}}(x, y) = 1$$
     \textit{Interpretación:} Penalización máxima para puntos claramente fuera de la hipótesis extendida.
     
-    \textbf{Paso 3: Propiedades de la función de penalización}
+    \textbf{Propiedades de la función de penalización}
     
     \textbf{Continuidad:} Verificamos que la función es continua en los puntos de transición:
     
@@ -155,7 +155,7 @@ En los ejercicios 1 y 2 obtuviste funciones indicadoras para evaluar la pertenen
     \textbf{Monotonicidad:} En la zona de transición:
     $$\frac{dL}{dd} = \frac{1}{\delta} > 0$$
     
-    \textbf{Paso 4: Interpretación probabilística}
+    \textbf{Interpretación probabilística}
     
     La función relajada puede interpretarse como la probabilidad de clasificación incorrecta:
     
@@ -170,7 +170,7 @@ En los ejercicios 1 y 2 obtuviste funciones indicadoras para evaluar la pertenen
     
     \textbf{Elección: Hipótesis de elipse del Ejercicio 2}
     
-    \textbf{Paso 1: Justificación de la elección}
+    \textbf{Justificación de la elección}
     
     Elegimos la clase de hipótesis de elipses $\mathcal{H}_{\text{eli}}$ por las siguientes ventajas:
     
@@ -181,7 +181,7 @@ En los ejercicios 1 y 2 obtuviste funciones indicadoras para evaluar la pertenen
         \item \textbf{Parametrización compacta:} Solo 4 parámetros $\{h, k, a, b\}$ más $\delta$
     \end{enumerate}
     
-    \textbf{Paso 2: Definición completa de la función relajada}
+    \textbf{Definición completa de la función relajada}
     
     Para una elipse con parámetros $\boldsymbol{\theta} = \{h, k, a, b\}$ y parámetro de suavidad $\delta > 0$:
     
@@ -194,7 +194,7 @@ En los ejercicios 1 y 2 obtuviste funciones indicadoras para evaluar la pertenen
     donde:
     $$d(x, y) = \sqrt{\frac{(x - h)^2}{a^2} + \frac{(y - k)^2}{b^2}}$$
     
-    \textbf{Paso 3: Familia de funciones relajadas}
+    \textbf{Familia de funciones relajadas}
     
     Variando $\delta$, obtenemos una familia de funciones:
     
@@ -206,7 +206,7 @@ En los ejercicios 1 y 2 obtuviste funciones indicadoras para evaluar la pertenen
         \item $\delta \to \infty$: La función se vuelve completamente suave pero pierde precisión
     \end{itemize}
     
-    \textbf{Paso 4: Análisis de la superficie de pérdida}
+    \textbf{Análisis de la superficie de pérdida}
     
     La función $L_{\text{elipse}}(x, y)$ define una superficie en $\mathbb{R}^3$ con:
     

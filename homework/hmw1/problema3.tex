@@ -16,9 +16,9 @@ Verifica que si $L_{kj} = 1 - I_{kj}$, donde $I_{kj}$ son los elementos de la ma
 
 \textbf{Solución:}
 
-\textbf{Paso 1: Entender el contexto del problema}
+\textbf{Desarrollo de la demostración:}
 
-Estamos trabajando con un problema de decisión bayesiana donde:
+Analizo un problema de decisión bayesiana donde:
 \begin{itemize}
     \item $\mathcal{C}_k$ representa las clases verdaderas ($k = 1, 2, \ldots, K$)
     \item $j$ representa las decisiones o predicciones ($j = 1, 2, \ldots, K$)
@@ -26,18 +26,18 @@ Estamos trabajando con un problema de decisión bayesiana donde:
     \item $p(\mathcal{C}_k|x)$ es la probabilidad a posteriori de la clase $k$ dado el input $x$
 \end{itemize}
 
-\textbf{Paso 2: Definir la función de pérdida 0-1}
+\textbf{Definición de la función de pérdida 0-1:}
 
-La función de pérdida $L_{kj} = 1 - I_{kj}$ donde $I_{kj}$ es el elemento $(k,j)$ de la matriz identidad se puede escribir explícitamente como:
+La función de pérdida $L_{kj} = 1 - I_{kj}$ donde $I_{kj}$ es el elemento $(k,j)$ de la matriz identidad se expresa como:
 
 $$L_{kj} = 1 - I_{kj} = \begin{cases}
 0 & \text{si } k = j \text{ (clasificación correcta)} \\
 1 & \text{si } k \neq j \text{ (clasificación incorrecta)}
 \end{cases}$$
 
-\textbf{Interpretación:} Esta es la función de pérdida 0-1 estándar que penaliza igualmente todos los errores de clasificación.
+Esta es la función de pérdida 0-1 estándar que penaliza igualmente todos los errores de clasificación.
 
-\textbf{Paso 3: Calcular el riesgo esperado para una decisión específica}
+\textbf{Calcular el riesgo esperado para una decisión específica}
 
 Para una decisión fija $j$, el riesgo esperado es:
 $$R(j|x) = \sum_{k} L_{kj} p(\mathcal{C}_k|x)$$
@@ -49,7 +49,7 @@ R(j|x) &= \sum_{k} (1 - I_{kj}) p(\mathcal{C}_k|x) \\
 &= \sum_{k} p(\mathcal{C}_k|x) - \sum_{k} I_{kj} p(\mathcal{C}_k|x)
 \end{align}
 
-\textbf{Paso 4: Simplificar usando propiedades de las probabilidades}
+\textbf{Simplificar usando propiedades de las probabilidades}
 
 Analizamos cada término:
 
@@ -61,14 +61,14 @@ Por definición de la matriz identidad, $I_{kj} = 1$ solo cuando $k = j$, y $I_{
 
 $$\sum_{k} I_{kj} p(\mathcal{C}_k|x) = I_{jj} p(\mathcal{C}_j|x) + \sum_{k \neq j} I_{kj} p(\mathcal{C}_k|x) = 1 \cdot p(\mathcal{C}_j|x) + \sum_{k \neq j} 0 \cdot p(\mathcal{C}_k|x) = p(\mathcal{C}_j|x)$$
 
-\textbf{Paso 5: Expresión final del riesgo}
+\textbf{Expresión final del riesgo}
 
 Combinando los resultados:
 $$R(j|x) = 1 - p(\mathcal{C}_j|x)$$
 
 \textbf{Interpretación:} El riesgo de decidir la clase $j$ es igual a la probabilidad de que la clase verdadera NO sea $j$.
 
-\textbf{Paso 6: Encontrar la decisión óptima}
+\textbf{Encontrar la decisión óptima}
 
 Para minimizar el riesgo esperado, debemos encontrar:
 $$j^* = \arg\min_{j} R(j|x) = \arg\min_{j} [1 - p(\mathcal{C}_j|x)]$$
@@ -76,7 +76,7 @@ $$j^* = \arg\min_{j} R(j|x) = \arg\min_{j} [1 - p(\mathcal{C}_j|x)]$$
 Como el término constante $1$ no afecta la minimización:
 $$j^* = \arg\min_{j} [-p(\mathcal{C}_j|x)] = \arg\max_{j} p(\mathcal{C}_j|x)$$
 
-\textbf{Paso 7: Conclusión y interpretación}
+\textbf{Conclusión y interpretación}
 
 \textbf{Resultado principal:} Con la función de pérdida 0-1, la regla de decisión óptima de Bayes es:
 
@@ -89,7 +89,7 @@ $$i^* = \arg\max_{j} p(\mathcal{C}_j|x)$$
     \item Es la base teórica para muchos clasificadores bayesianos
 \end{itemize}
 
-\textbf{Paso 8: Verificación matemática}
+\textbf{Verificación matemática}
 
 Para verificar que efectivamente hemos demostrado lo requerido, observemos que:
 

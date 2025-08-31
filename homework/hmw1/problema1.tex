@@ -4,23 +4,16 @@ Para una clase de hipótesis de triángulos $\mathcal{H}_{\text{tri}}$:
 
 \begin{enumerate}
     \item[a)] Escribe una función indicadora para evaluar si un punto 2D pertenece o no a una hipótesis de un triángulo particular $h_{\boldsymbol{\theta}} \in \mathcal{H}_{\text{tri}}$.
-    
-    
-    \textbf{Paso 1: Entender el problema}
-    
-    Necesitamos una función que determine si un punto $(x,y) \in \mathbb{R}^2$ está dentro o fuera de un triángulo. Esta función debe regresar 1 si el punto está dentro y 0 si está fuera.
-    
-    \textbf{Paso 2: Método de coordenadas baricéntricas}
-    
-    Las coordenadas baricéntricas expresan cualquier punto del plano como una combinación lineal de los vértices del triángulo. Para un triángulo con vértices $V_1 = (x_1, y_1)$, $V_2 = (x_2, y_2)$, $V_3 = (x_3, y_3)$, cualquier punto $P = (x, y)$ puede escribirse como:
+        
+    La función indicadora debe determinar si un punto $(x,y) \in \mathbb{R}^2$ está dentro o fuera de un triángulo, regresando 1 si el punto está dentro y 0 si está fuera.
+        
+    Utilizo las coordenadas baricéntricas para resolver este problema. Para un triángulo con vértices $V_1 = (x_1, y_1)$, $V_2 = (x_2, y_2)$, $V_3 = (x_3, y_3)$, cualquier punto $P = (x, y)$ se puede expresar como:
     
     $$P = \lambda_1 V_1 + \lambda_2 V_2 + \lambda_3 V_3$$
     
     donde $\lambda_1 + \lambda_2 + \lambda_3 = 1$.
     
-    \textbf{Paso 3: Cálculo de las coordenadas baricéntricas}
-    
-    Para encontrar $\lambda_1$, $\lambda_2$ y $\lambda_3$, resolvemos el sistema:
+    Las coordenadas $\lambda_1$, $\lambda_2$ y $\lambda_3$ se obtienen resolviendo el sistema:
     
     \begin{align}
     x &= \lambda_1 x_1 + \lambda_2 x_2 + \lambda_3 x_3 \\
@@ -36,13 +29,13 @@ Para una clase de hipótesis de triángulos $\mathcal{H}_{\text{tri}}$:
     
     $$\lambda_3 = 1 - \lambda_1 - \lambda_2$$
     
-    \textbf{Paso 4: Criterio de pertenencia}
+    \textbf{Criterio de pertenencia:}
     
-    Un punto está dentro del triángulo si y solo si todas sus coordenadas baricéntricas son no negativas:
+    Un punto pertenece al triángulo si y solo si todas sus coordenadas baricéntricas son no negativas:
     
     $$P \in \text{Triángulo} \Leftrightarrow \lambda_1 \geq 0 \land \lambda_2 \geq 0 \land \lambda_3 \geq 0$$
     
-    \textbf{Paso 5: Función indicadora}
+    \textbf{Función indicadora resultante:}
     
     $$h_{\boldsymbol{\theta}}(x,y) = \begin{cases}
     1 & \text{si } \lambda_1 \geq 0 \land \lambda_2 \geq 0 \land \lambda_3 \geq 0 \\
@@ -52,15 +45,15 @@ Para una clase de hipótesis de triángulos $\mathcal{H}_{\text{tri}}$:
     
     \item[b)] Debes escribir la función parametrizada por los parámetros $\boldsymbol{\theta}$ que tú consideres.
         
-    \textbf{Paso 1: Identificar los parámetros necesarios}
+    \textbf{Parametrización propuesta:}
     
-    Un triángulo en $\mathbb{R}^2$ queda completamente determinado por sus tres vértices. Cada vértice tiene dos coordenadas $(x_i, y_i)$, por lo que necesitamos 6 parámetros en total.
+    Un triángulo en $\mathbb{R}^2$ queda completamente determinado por sus tres vértices. Cada vértice tiene dos coordenadas $(x_i, y_i)$, por lo que defino 6 parámetros en total.
     
-    \textbf{Paso 2: Definir el vector de parámetros}
+    \textbf{Vector de parámetros:}
     
     $$\boldsymbol{\theta} = (x_1, y_1, x_2, y_2, x_3, y_3) \in \mathbb{R}^6$$
     
-    \textbf{Paso 3: Escribir la función parametrizada}
+    \textbf{Función parametrizada:}
     
     La función $h_{\boldsymbol{\theta}}: \mathbb{R}^2 \rightarrow \{0, 1\}$ se define como:
     
@@ -68,7 +61,7 @@ Para una clase de hipótesis de triángulos $\mathcal{H}_{\text{tri}}$:
     
     donde $\mathbb{1}_{\{A\}}$ es la función indicadora del evento $A$.
     
-    \textbf{Paso 4: Forma explícita}
+    \textbf{Implementación explícita:}
     
     Definiendo el denominador común:
     $$D(\boldsymbol{\theta}) = (y_2 - y_3)(x_1 - x_3) + (x_3 - x_2)(y_1 - y_3)$$

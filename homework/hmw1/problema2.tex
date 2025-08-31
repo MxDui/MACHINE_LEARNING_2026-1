@@ -12,50 +12,48 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
     \item[a)] Usa esta ecuación para escribir una función indicadora para evaluar si un punto en 2D pertenece o no a una hipótesis de una elipse particular $h_{\boldsymbol{\theta}} \in \mathcal{H}_{\text{eli}}$, donde $\boldsymbol{\theta} = \{h, k, a, b\}$.
     
     \textbf{Solución:}
-    
-    \textbf{Paso 1: Entender la ecuación de la elipse}
-    
+        
     La ecuación estándar de una elipse con centro en $(h, k)$ y semiejes $a$ y $b$ es:
     $$\frac{(x - h)^2}{a^2} + \frac{(y - k)^2}{b^2} = 1$$
     
-    Esta ecuación define la \textit{frontera} de la elipse. Los puntos que satisfacen esta ecuación exactamente están sobre el perímetro de la elipse.
+    Esta ecuación define la frontera de la elipse. Para la función indicadora, generalizo para incluir el interior:
     
-    \textbf{Paso 2: Generalizar para el interior}
+    \textbf{Criterio de pertenencia:}
     
-    Para determinar si un punto está dentro, sobre, o fuera de la elipse, evaluamos:
+    Defino la distancia normalizada:
     $$d(x, y) = \frac{(x - h)^2}{a^2} + \frac{(y - k)^2}{b^2}$$
     
-    La interpretación geométrica es:
+    La interpretación es:
     \begin{itemize}
-        \item Si $d(x, y) < 1$: el punto está \textit{dentro} de la elipse
-        \item Si $d(x, y) = 1$: el punto está \textit{sobre} la elipse
-        \item Si $d(x, y) > 1$: el punto está \textit{fuera} de la elipse
+        \item Si $d(x, y) < 1$: el punto está dentro de la elipse
+        \item Si $d(x, y) = 1$: el punto está sobre la elipse
+        \item Si $d(x, y) > 1$: el punto está fuera de la elipse
     \end{itemize}
     
-    \textbf{Paso 3: Definir la función indicadora}
+    \textbf{Función indicadora:}
     
-    Para clasificación binaria, consideramos que un punto pertenece a la clase positiva si está dentro o sobre la elipse:
+    Para clasificación binaria, considero que un punto pertenece a la clase positiva si está dentro o sobre la elipse:
     
     $$h_{\boldsymbol{\theta}}(x,y) = \begin{cases}
     1 & \text{si } \frac{(x - h)^2}{a^2} + \frac{(y - k)^2}{b^2} \leq 1 \\
     0 & \text{en caso contrario}
     \end{cases}$$
     
-    \textbf{Interpretación matemática:} La función indicadora $h_{\boldsymbol{\theta}}: \mathbb{R}^2 \rightarrow \{0, 1\}$ divide el plano en dos regiones: el interior (incluyendo la frontera) de la elipse y el exterior.
+    La función indicadora $h_{\boldsymbol{\theta}}: \mathbb{R}^2 \rightarrow \{0, 1\}$ divide el plano en dos regiones: el interior (incluyendo la frontera) de la elipse y el exterior.
     
     
     \item[b)] Escribe a manera de pseudocódigo un algoritmo para encontrar los parámetros $\boldsymbol{\theta}' = \{h', k', a', b'\}$ de la elipse más pequeña que sólo permite un error menor o igual a un umbral $\alpha$ (relativamente pequeño; por ejemplo, 10\%) de clasificaciones incorrectas (para una de dos clases) del total de puntos $\mathcal{X} = \{(x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n)\}$.
     
     \textbf{Solución:}
     
-    \textbf{Paso 1: Formulación del problema}
+    \textbf{Formulación del problema}
     
     Buscamos la elipse más pequeña (en área) que clasifique correctamente al menos $(1-\alpha) \cdot n$ puntos, donde $n = |\mathcal{X}|$.
     
     \textbf{Definición matemática:} Minimizar $\pi a' b'$ (área de la elipse) sujeto a:
     $$\sum_{i=1}^{n} \mathbb{1}_{\{h_{\boldsymbol{\theta}'}(x_i, y_i) \neq y_i\}} \leq \lfloor \alpha \cdot n \rfloor$$
     
-    \textbf{Paso 2: Estrategia de escalamiento}
+    \textbf{Estrategia de escalamiento}
     
     La idea es:
     \begin{enumerate}
@@ -63,7 +61,7 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
         \item Encontrar la escala mínima que respete el presupuesto de error
     \end{enumerate}
     
-    \textbf{Paso 3: Algoritmo paso a paso}
+    \textbf{Algoritmo paso a paso}
     
     \begin{algorithm}[H]
     \caption{ElipseMinima - Encontrar elipse mínima con umbral de error}
@@ -122,7 +120,7 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
     
     \textbf{Solución:}
     
-    \textbf{Paso 1: Problema de optimización}
+    \textbf{Problema de optimización}
     
     Dada la elipse mínima $\boldsymbol{\theta}' = \{h', k', a', b'\}$, buscamos la elipse máxima $\boldsymbol{\theta}'' = \{h', k', a'', b''\}$ tal que:
     
@@ -130,20 +128,20 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
     
     Es decir, no introducimos errores adicionales.
     
-    \textbf{Paso 2: Restricción geométrica}
+    \textbf{Restricción geométrica}
     
     Para no introducir nuevos errores, la elipse expandida no debe incluir puntos negativos que estaban correctamente clasificados como negativos.
     
     \textbf{Criterio:} Si $(x_i, y_i) \in \mathcal{X}^-$ y está correctamente clasificado por $\boldsymbol{\theta}'$, entonces:
     $$\frac{(x_i - h')^2}{(a')^2} + \frac{(y_i - k')^2}{(b')^2} > 1$$
     
-    \textbf{Paso 3: Factor de expansión}
+    \textbf{Factor de expansión}
     
     Si escalamos uniformemente: $a'' = s \cdot a'$ y $b'' = s \cdot b'$ con $s \geq 1$, entonces la nueva distancia normalizada para el punto $(x_i, y_i)$ es:
     
     $$d_i^{(s)} = \sqrt{\frac{(x_i - h')^2}{(s \cdot a')^2} + \frac{(y_i - k')^2}{(s \cdot b')^2}} = \frac{d_i^{(\text{original})}}{s}$$
     
-    \textbf{Paso 4: Algoritmo de expansión}
+    \textbf{Algoritmo de expansión}
     
     \begin{algorithm}[H]
     \caption{ElipseMaxima - Encontrar elipse máxima sin nuevos errores}
@@ -190,11 +188,11 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
     
     \textbf{Solución:}
     
-    \textbf{Paso 1: Motivación para la interpolación}
+    \textbf{Motivación para la interpolación}
     
     La elipse mínima $\boldsymbol{\theta}'$ minimiza el error de entrenamiento pero puede ser muy conservadora (alto sesgo). La elipse máxima $\boldsymbol{\theta}''$ maximiza el margen pero puede ser muy permisiva. Una interpolación puede balancear estos extremos.
     
-    \textbf{Paso 2: Interpolación lineal}
+    \textbf{Interpolación lineal}
     
     Para un parámetro de interpolación $\lambda \in [0, 1]$, definimos:
     
@@ -211,14 +209,14 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
     b_{\text{final}} &= \frac{b' + b''}{2}
     \end{align}
     
-    \textbf{Paso 3: Función indicadora interpolada}
+    \textbf{Función indicadora interpolada}
     
     $$h_{\text{final}}(x,y) = \begin{cases}
     1 & \text{si } \frac{(x - h')^2}{a_{\text{final}}^2} + \frac{(y - k')^2}{b_{\text{final}}^2} \leq 1 \\
     0 & \text{en caso contrario}
     \end{cases}$$
     
-    \textbf{Paso 4: Interpretación geométrica}
+    \textbf{Interpretación geométrica}
     
     La elipse interpolada tiene:
     \begin{itemize}
@@ -227,7 +225,7 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
         \item \textbf{Generalización:} Potencialmente mejor que los extremos
     \end{itemize}
     
-    \textbf{Paso 5: Validación}
+    \textbf{Validación}
     
     Para validar la elección de $\lambda$, se puede:
     \begin{enumerate}
