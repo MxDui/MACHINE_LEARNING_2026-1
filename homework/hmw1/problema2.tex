@@ -43,9 +43,7 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
     
     \item[b)] Escribe a manera de pseudocódigo un algoritmo para encontrar los parámetros $\boldsymbol{\theta}' = \{h', k', a', b'\}$ de la elipse más pequeña que sólo permite un error menor o igual a un umbral $\alpha$ (relativamente pequeño; por ejemplo, 10\%) de clasificaciones incorrectas (para una de dos clases) del total de puntos $\mathcal{X} = \{(x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n)\}$.
     
-    
-    \textbf{Formulación del problema}
-    
+        
     Buscamos la elipse más pequeña (en área) que clasifique correctamente al menos $(1-\alpha) \cdot n$ puntos, donde $n = |\mathcal{X}|$.
     
     \textbf{Definición matemática:} Minimizar $\pi a' b'$ (área de la elipse) sujeto a:
@@ -203,22 +201,6 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
     0 & \text{en caso contrario}
     \end{cases}$$
     
-    \textbf{Interpretación geométrica}
-    
-    La elipse interpolada tiene:
-    \begin{itemize}
-        \item \textbf{Área:} $\pi a_{\text{final}} b_{\text{final}} = \pi \cdot \frac{a' + a''}{2} \cdot \frac{b' + b''}{2}$
-        \item \textbf{Error esperado:} Entre el error mínimo y el error de la elipse máxima
-        \item \textbf{Generalización:} Potencialmente mejor que los extremos
-    \end{itemize}
-    
-    \textbf{Validación}
-    
-    Para validar la elección de $\lambda$, se puede:
-    \begin{enumerate}
-        \item Usar validación cruzada para seleccionar $\lambda^* \in [0, 1]$
-        \item Evaluar el error en un conjunto de prueba
-        \item Comparar con $\lambda = 0$ (elipse mínima) y $\lambda = 1$ (elipse máxima)
-    \end{enumerate}
+ 
     
 \end{enumerate}
