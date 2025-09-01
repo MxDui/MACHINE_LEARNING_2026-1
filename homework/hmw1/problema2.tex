@@ -16,9 +16,9 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
     La ecuación estándar de una elipse con centro en $(h, k)$ y semiejes $a$ y $b$ es:
     $$\frac{(x - h)^2}{a^2} + \frac{(y - k)^2}{b^2} = 1$$
     
-    Esta ecuación define la frontera de la elipse. Para la función indicadora, generalizo para incluir el interior:
+    Esta ecuación define la frontera de la elipse. Para la función indicadora, generalizo para incluir lo anterior:
     
-    \textbf{Criterio de pertenencia:}
+    \textbf{Criterio de pertenencia}
     
     Defino la distancia normalizada:
     $$d(x, y) = \frac{(x - h)^2}{a^2} + \frac{(y - k)^2}{b^2}$$
@@ -64,15 +64,15 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
     \textbf{Algoritmo paso a paso}
     
     \begin{algorithm}[H]
-    \caption{ElipseMinima - Encontrar elipse mínima con umbral de error}
+    \caption{ElipseMinima - Encontrar elipse mínima con umbral de error $\alphavar$}
     \begin{algorithmic}[1]
-    \Require $\mathcal{X} = \{(x_i, y_i)\}_{i=1}^n$, $\mathcal{Y} = \{y_i\}_{i=1}^n \subseteq \{-1, +1\}$, $\alpha \in (0, 1)$
+    \Require $\mathcal{X} = \{(x_i, y_i)\}_{i=1}^n$, $\mathcal{Y} = \{y_i\}_{i=1}^n \subseteq \{-1, +1\}$, $\alphavar \in (0, 1)$
     \Ensure $\boldsymbol{\theta}' = \{h', k', a', b'\}$
     \State \Comment{Separación por clases}
     \State $\mathcal{X}^+ \gets \{(x_i, y_i) : y_i = +1\}$
     \State $\mathcal{X}^- \gets \{(x_i, y_i) : y_i = -1\}$
     \State $n^+ \gets |\mathcal{X}^+|$, $n^- \gets |\mathcal{X}^-|$
-    \State $\text{max\_errores} \gets \lfloor \alpha \cdot n \rfloor$
+    \State $\text{max\_errores} \gets \lfloor \alphavar \cdot n \rfloor$ \Comment{$\alphavar$ es hiperparámetro a validar}
     \State
     \State \Comment{Estimación del centro}
     \State $h' \gets \frac{1}{n^+} \sum_{(x,y) \in \mathcal{X}^+} x$
@@ -88,25 +88,20 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
         \State $d_i \gets \sqrt{\frac{(x_i - h')^2}{a_0^2} + \frac{(y_i - k')^2}{b_0^2}}$
     \EndFor
     \State
-    \State \Comment{Búsqueda de la escala óptima}
+    \State \Comment{Búsqueda de la escala óptima por búsqueda binaria}
     \State $\mathcal{S} \gets $ valores únicos ordenados de $\{d_i : i = 1, \ldots, n\}$
-    \For{cada $s \in \mathcal{S}$ (en orden ascendente)}
-        \State $\text{errores} \gets 0$
-        \For{$i = 1$ \textbf{to} $n$}
-            \If{$d_i \leq s$}
-                \State $\text{pred}_i \gets +1$
-            \Else
-                \State $\text{pred}_i \gets -1$
-            \EndIf
-            \If{$\text{pred}_i \neq y_i$}
-                \State $\text{errores} \gets \text{errores} + 1$
-            \EndIf
-        \EndFor
+    \State $\ell \gets 1$ \Comment{límite inferior de escala}
+    \State $r \gets \max \mathcal{S}$ \Comment{límite superior de escala}
+    \State $s^* \gets r$
+    \While{$\ell \leq r$}
+        \State $m \gets (\ell + r)/2$
+        \State $\text{errores} \gets$ errores\_con\_escala($\{d_i\}$, $\{y_i\}$, $m$)
         \If{$\text{errores} \leq \text{max\_errores}$}
-            \State $s^* \gets s$
-            \State \textbf{break}
+            \State $s^* \gets m$; $r \gets m - \varepsilon$ \Comment{buscamos escala más pequeña}
+        \Else
+            \State $\ell \gets m + \varepsilon$
         \EndIf
-    \EndFor
+    \EndWhile
     \State
     \State \Comment{Parámetros finales}
     \State $a' \gets a_0 \cdot s^*$
@@ -119,9 +114,7 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
     \item[c)] Ahora encuentra también a manera de pseudocódigo los parámetros del elipse más grande que no introduce nuevos errores. Puedes partir de los parámetros $\boldsymbol{\theta}'$ del inciso anterior.
     
     \textbf{Solución:}
-    
-    \textbf{Problema de optimización}
-    
+        
     Dada la elipse mínima $\boldsymbol{\theta}' = \{h', k', a', b'\}$, buscamos la elipse máxima $\boldsymbol{\theta}'' = \{h', k', a'', b''\}$ tal que:
     
     $$\text{errores}(\boldsymbol{\theta}'') = \text{errores}(\boldsymbol{\theta}')$$
@@ -132,7 +125,7 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
     
     Para no introducir nuevos errores, la elipse expandida no debe incluir puntos negativos que estaban correctamente clasificados como negativos.
     
-    \textbf{Criterio:} Si $(x_i, y_i) \in \mathcal{X}^-$ y está correctamente clasificado por $\boldsymbol{\theta}'$, entonces:
+    \textbf{Criterio} Si $(x_i, y_i) \in \mathcal{X}^-$ y está correctamente clasificado por $\boldsymbol{\theta}'$, entonces:
     $$\frac{(x_i - h')^2}{(a')^2} + \frac{(y_i - k')^2}{(b')^2} > 1$$
     
     \textbf{Factor de expansión}
@@ -156,7 +149,7 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
     \State \Comment{Identificar puntos negativos externos}
     \State $\mathcal{N} \gets \{i : y_i = -1 \text{ y } d_i^{(\text{original})} > 1\}$
     \State
-    \State \Comment{Calcular factor de expansión máximo}
+    \State \Comment{Calcular factor de expansión máximo (sin introducir nuevos errores)}
     \If{$\mathcal{N} \neq \emptyset$}
         \State $\delta \gets 1 \times 10^{-6}$
         \State $s_{\max} \gets \min_{i \in \mathcal{N}} d_i^{(\text{original})} - \delta$
@@ -182,14 +175,12 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
     \State \Return $\boldsymbol{\theta}'' = \{h', k', a'', b''\}$
     \end{algorithmic}
     \end{algorithm}
-    
-    
+
+   
     \item[d)] Finalmente propón como hipótesis para la función indicadora un elipse que esté entre ambos (de los incisos b y c), por ejemplo a la mitad del camino paramétricamente hablando.
     
     \textbf{Solución:}
-    
-    \textbf{Motivación para la interpolación}
-    
+        
     La elipse mínima $\boldsymbol{\theta}'$ minimiza el error de entrenamiento pero puede ser muy conservadora (alto sesgo). La elipse máxima $\boldsymbol{\theta}''$ maximiza el margen pero puede ser muy permisiva. Una interpolación puede balancear estos extremos.
     
     \textbf{Interpolación lineal}
@@ -233,22 +224,5 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
         \item Evaluar el error en un conjunto de prueba
         \item Comparar con $\lambda = 0$ (elipse mínima) y $\lambda = 1$ (elipse máxima)
     \end{enumerate}
-    
-    
-    \item[e)] Implementarás esto en la práctica asociada a este ejercicio.
-    
-    \textbf{Guía para la implementación:}
-    
-    La implementación debe incluir las siguientes funciones matemáticas:
-    
-    \textbf{Función 1: Evaluación de la función indicadora}
-    $$f_{\text{indicadora}}(\boldsymbol{\theta}, x, y) = \mathbb{1}_{\left\{\frac{(x-h)^2}{a^2} + \frac{(y-k)^2}{b^2} \leq 1\right\}}$$
-    
-    \textbf{Función 2: Cálculo de error}
-    $$E(\boldsymbol{\theta}) = \frac{1}{n} \sum_{i=1}^{n} \mathbb{1}_{\{h_{\boldsymbol{\theta}}(x_i, y_i) \neq y_i\}}$$
-    
-    \textbf{Función 3: Optimización de parámetros}
-    
-    Implementar los algoritmos ElipseMinima y ElipseMaxima descritos en los incisos anteriores.
     
 \end{enumerate}

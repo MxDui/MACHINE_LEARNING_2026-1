@@ -7,7 +7,7 @@ Para una clase de hipótesis de triángulos $\mathcal{H}_{\text{tri}}$:
         
     La función indicadora debe determinar si un punto $(x,y) \in \mathbb{R}^2$ está dentro o fuera de un triángulo, regresando 1 si el punto está dentro y 0 si está fuera.
         
-    Utilizo las coordenadas baricéntricas para resolver este problema. Para un triángulo con vértices $V_1 = (x_1, y_1)$, $V_2 = (x_2, y_2)$, $V_3 = (x_3, y_3)$, cualquier punto $P = (x, y)$ se puede expresar como:
+    Para un triángulo con vértices $V_1 = (x_1, y_1)$, $V_2 = (x_2, y_2)$, $V_3 = (x_3, y_3)$, cualquier punto $P = (x, y)$ se puede expresar con coordenadas baricéntricas como:
     
     $$P = \lambda_1 V_1 + \lambda_2 V_2 + \lambda_3 V_3$$
     
@@ -22,11 +22,7 @@ Para una clase de hipótesis de triángulos $\mathcal{H}_{\text{tri}}$:
     \end{align}
     
     La solución es:
-    
-    $$\lambda_1 = \frac{(y_2 - y_3)(x - x_3) + (x_3 - x_2)(y - y_3)}{(y_2 - y_3)(x_1 - x_3) + (x_3 - x_2)(y_1 - y_3)}$$
-    
-    $$\lambda_2 = \frac{(y_3 - y_1)(x - x_3) + (x_1 - x_3)(y - y_3)}{(y_2 - y_3)(x_1 - x_3) + (x_3 - x_2)(y_1 - y_3)}$$
-    
+
     $$\lambda_3 = 1 - \lambda_1 - \lambda_2$$
     
     \textbf{Criterio de pertenencia:}
@@ -35,7 +31,7 @@ Para una clase de hipótesis de triángulos $\mathcal{H}_{\text{tri}}$:
     
     $$P \in \text{Triángulo} \Leftrightarrow \lambda_1 \geq 0 \land \lambda_2 \geq 0 \land \lambda_3 \geq 0$$
     
-    \textbf{Función indicadora resultante:}
+    \textbf{Función indicadora:}
     
     $$h_{\boldsymbol{\theta}}(x,y) = \begin{cases}
     1 & \text{si } \lambda_1 \geq 0 \land \lambda_2 \geq 0 \land \lambda_3 \geq 0 \\
@@ -45,7 +41,6 @@ Para una clase de hipótesis de triángulos $\mathcal{H}_{\text{tri}}$:
     
     \item[b)] Debes escribir la función parametrizada por los parámetros $\boldsymbol{\theta}$ que tú consideres.
         
-    \textbf{Parametrización propuesta:}
     
     Un triángulo en $\mathbb{R}^2$ queda completamente determinado por sus tres vértices. Cada vértice tiene dos coordenadas $(x_i, y_i)$, por lo que defino 6 parámetros en total.
     
@@ -61,7 +56,7 @@ Para una clase de hipótesis de triángulos $\mathcal{H}_{\text{tri}}$:
     
     donde $\mathbb{1}_{\{A\}}$ es la función indicadora del evento $A$.
     
-    \textbf{Implementación explícita:}
+    \textbf{Implementación}
     
     Definiendo el denominador común:
     $$D(\boldsymbol{\theta}) = (y_2 - y_3)(x_1 - x_3) + (x_3 - x_2)(y_1 - y_3)$$
@@ -79,4 +74,5 @@ Para una clase de hipótesis de triángulos $\mathcal{H}_{\text{tri}}$:
     
     Si $|D(\boldsymbol{\theta})| \leq \epsilon$, entonces $h_{\boldsymbol{\theta}}(x,y) = 0$ (triángulo degenerado).
   
+   
 \end{enumerate}
