@@ -14,10 +14,10 @@ se minimiza si para cada $x$ escogemos la clase para minimizar la siguiente expr
 
 Verifica que si $L_{kj} = 1 - I_{kj}$, donde $I_{kj}$ son los elementos de la matriz identidad, entonces la minimización anterior se reduce a escoger la clase $i$ con la probabilidad más grande $p(\mathcal{C}_i|x)$.
 
-\textbf{Demostración:}
+\textbf{Demostración}
 
 
-\textbf{Definición de la función de pérdida 0-1:}
+\textbf{Definición de la función de pérdida 0-1}
 
 La función de pérdida $L_{kj} = 1 - I_{kj}$ donde $I_{kj}$ es el elemento $(k,j)$ de la matriz identidad se expresa como:
 
@@ -28,7 +28,6 @@ $$L_{kj} = 1 - I_{kj} = \begin{cases}
 
 Esta es la función de pérdida 0-1 estándar que penaliza igualmente todos los errores de clasificación.
 
-\textbf{Calcular el riesgo esperado para una decisión específica}
 
 Para una decisión fija $j$, el riesgo esperado es:
 $$R(j|x) = \sum_{k} L_{kj} p(\mathcal{C}_k|x)$$
@@ -40,9 +39,7 @@ R(j|x) &= \sum_{k} (1 - I_{kj}) p(\mathcal{C}_k|x) \\
 &= \sum_{k} p(\mathcal{C}_k|x) - \sum_{k} I_{kj} p(\mathcal{C}_k|x)
 \end{align}
 
-\textbf{Simplificar usando propiedades de las probabilidades}
-
-Analizamos cada término:
+\textbf{Simplificamos}
 
 \textbf{Primer término:} $\sum_{k} p(\mathcal{C}_k|x) = 1$ (axioma de probabilidad)
 
@@ -52,14 +49,12 @@ Por definición de la matriz identidad, $I_{kj} = 1$ solo cuando $k = j$, y $I_{
 
 $$\sum_{k} I_{kj} p(\mathcal{C}_k|x) = I_{jj} p(\mathcal{C}_j|x) + \sum_{k \neq j} I_{kj} p(\mathcal{C}_k|x) = 1 \cdot p(\mathcal{C}_j|x) + \sum_{k \neq j} 0 \cdot p(\mathcal{C}_k|x) = p(\mathcal{C}_j|x)$$
 
-\textbf{Expresión final del riesgo}
 
 Combinando los resultados:
 $$R(j|x) = 1 - p(\mathcal{C}_j|x)$$
 
-\textbf{Interpretación:} El riesgo de decidir la clase $j$ es igual a la probabilidad de que la clase verdadera NO sea $j$.
+\textbf{Interpretación} El riesgo de decidir la clase $j$ es igual a la probabilidad de que la clase verdadera NO sea $j$.
 
-\textbf{Encontrar la decisión óptima}
 
 Para minimizar el riesgo esperado, debemos encontrar:
 $$j^* = \arg\min_{j} R(j|x) = \arg\min_{j} [1 - p(\mathcal{C}_j|x)]$$
@@ -67,38 +62,9 @@ $$j^* = \arg\min_{j} R(j|x) = \arg\min_{j} [1 - p(\mathcal{C}_j|x)]$$
 Como el término constante $1$ no afecta la minimización:
 $$j^* = \arg\min_{j} [-p(\mathcal{C}_j|x)] = \arg\max_{j} p(\mathcal{C}_j|x)$$
 
-\textbf{Conclusión y interpretación}
+\textbf{Conclusión}
 
-\textbf{Resultado principal:} Con la función de pérdida 0-1, la regla de decisión óptima de Bayes es:
+Con la función de pérdida 0-1, la regla de decisión óptima de Bayes es:
 
 $$i^* = \arg\max_{j} p(\mathcal{C}_j|x)$$
 
-\textbf{Interpretación práctica:} 
-\begin{itemize}
-    \item Elegir siempre la clase con mayor probabilidad a posteriori
-    \item Esta regla minimiza la probabilidad de error de clasificación
-    \item Es la base teórica para muchos clasificadores bayesianos
-\end{itemize}
-
-\textbf{Verificación matemática}
-
-Para verificar que efectivamente hemos demostrado lo requerido, observemos que:
-
-\begin{enumerate}
-    \item \textbf{Partimos de:} $\arg\min_{j} \left( \sum_{k} L_{kj} p(\mathcal{C}_k|x) \right)$ con $L_{kj} = 1 - I_{kj}$
-    
-    \item \textbf{Demostramos que esto es igual a:} $\arg\min_{j} [1 - p(\mathcal{C}_j|x)]$
-    
-    \item \textbf{Lo cual es equivalente a:} $\arg\max_{j} p(\mathcal{C}_j|x)$
-    
-    \item \textbf{Por tanto:} La minimización se reduce efectivamente a escoger la clase $i$ con la probabilidad más grande $p(\mathcal{C}_i|x)$ $\blacksquare$
-\end{enumerate}
-
-\textbf{Extensión teórica:}
-
-Este resultado es fundamental en la teoría de decisiones bayesianas porque establece que, bajo pérdida 0-1:
-\begin{itemize}
-    \item La frontera de decisión óptima está dada por $p(\mathcal{C}_i|x) = p(\mathcal{C}_j|x)$ para clases $i \neq j$
-    \item El error de Bayes (error mínimo alcanzable) es $1 - \max_j p(\mathcal{C}_j|x)$
-    \item Cualquier clasificador que no siga esta regla tendrá error subóptimo
-\end{itemize}

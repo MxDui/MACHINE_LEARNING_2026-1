@@ -11,7 +11,6 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
 \begin{enumerate}
     \item[a)] Usa esta ecuación para escribir una función indicadora para evaluar si un punto en 2D pertenece o no a una hipótesis de una elipse particular $h_{\boldsymbol{\theta}} \in \mathcal{H}_{\text{eli}}$, donde $\boldsymbol{\theta} = \{h, k, a, b\}$.
     
-    \textbf{Solución:}
         
     La ecuación estándar de una elipse con centro en $(h, k)$ y semiejes $a$ y $b$ es:
     $$\frac{(x - h)^2}{a^2} + \frac{(y - k)^2}{b^2} = 1$$
@@ -44,7 +43,6 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
     
     \item[b)] Escribe a manera de pseudocódigo un algoritmo para encontrar los parámetros $\boldsymbol{\theta}' = \{h', k', a', b'\}$ de la elipse más pequeña que sólo permite un error menor o igual a un umbral $\alpha$ (relativamente pequeño; por ejemplo, 10\%) de clasificaciones incorrectas (para una de dos clases) del total de puntos $\mathcal{X} = \{(x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n)\}$.
     
-    \textbf{Solución:}
     
     \textbf{Formulación del problema}
     
@@ -113,7 +111,6 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
     
     \item[c)] Ahora encuentra también a manera de pseudocódigo los parámetros del elipse más grande que no introduce nuevos errores. Puedes partir de los parámetros $\boldsymbol{\theta}'$ del inciso anterior.
     
-    \textbf{Solución:}
         
     Dada la elipse mínima $\boldsymbol{\theta}' = \{h', k', a', b'\}$, buscamos la elipse máxima $\boldsymbol{\theta}'' = \{h', k', a'', b''\}$ tal que:
     
@@ -179,7 +176,6 @@ donde $a > 0$ y $b > 0$ son los parámetros para los semiejes de la elipse.
    
     \item[d)] Finalmente propón como hipótesis para la función indicadora un elipse que esté entre ambos (de los incisos b y c), por ejemplo a la mitad del camino paramétricamente hablando.
     
-    \textbf{Solución:}
         
     La elipse mínima $\boldsymbol{\theta}'$ minimiza el error de entrenamiento pero puede ser muy conservadora (alto sesgo). La elipse máxima $\boldsymbol{\theta}''$ maximiza el margen pero puede ser muy permisiva. Una interpolación puede balancear estos extremos.
     
